@@ -40,17 +40,16 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+/* Hide scrollbar / scroll progress track on the right */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 body {
@@ -65,6 +64,8 @@ body {
   overflow-x: hidden;
   position: relative;
   min-height: 100vh;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .mono {
@@ -1849,6 +1850,8 @@ button {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(16, 185, 129, 0.15);
   animation: modal-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
