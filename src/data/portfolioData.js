@@ -289,3 +289,66 @@ export const internshipMoments = [
   }
 ];
 
+export const certificatesData = [
+  {
+    id: "claude-code",
+    title: "Claude Code in Action",
+    issuer: "Anthropic",
+    issueDate: "May 19, 2026",
+    validUntil: "Lifetime Credential",
+    credentialId: "t3sakt6yemc3",
+    verifyUrl: "https://verify.skilljar.com/c/t3sakt6yemc3",
+    image: "/images/certificate/certificate-t3sakt6yemc3-1779191098_page-0001.jpg",
+    accent: "#10B981",
+    category: "Agentic AI & Dev Tools",
+    badge: "Official Certification",
+    description: "Completed Anthropic's rigorous Claude Code in Action curriculum, demonstrating proficiency with agentic AI terminal tools, automated CLI software development, and prompt-driven codebase refactoring.",
+    skills: ["Claude Code", "Agentic Workflows", "CLI Architecture", "Automated QA"]
+  },
+  {
+    id: "gemini-student",
+    title: "Siswa Tersertifikasi Gemini (Universitas)",
+    issuer: "Google for Education",
+    issueDate: "19 Mei 2026",
+    validUntil: "19 Mei 2029",
+    credentialId: "Google AI Certified Student",
+    verifyUrl: null,
+    image: "/images/certificate/gem2_page-0001.jpg",
+    accent: "#06B6D4",
+    category: "Generative AI",
+    badge: "Google Certified",
+    description: "Demonstrated verified foundational knowledge, applied skills, and core competencies required to utilize Google AI technologies, Gemini workflows, and machine intelligence in university educational environments.",
+    skills: ["Google Gemini", "Generative AI", "Prompt Engineering", "Academic Tech"]
+  },
+  {
+    id: "hcia-ai",
+    title: "HCIA-AI V3.5 Course Certification",
+    issuer: "Huawei Talent Online",
+    issueDate: "June 2, 2025",
+    validUntil: "Lifetime Credential",
+    credentialId: "Huawei Talent Online ID",
+    verifyUrl: null,
+    image: "/images/certificate/photo.png",
+    accent: "#EF4444",
+    category: "Artificial Intelligence",
+    badge: "Huawei Certified",
+    description: "Successfully passed and achieved course completion for Huawei's HCIA-AI V3.5 curriculum, validating knowledge in machine learning algorithms, deep neural networks, and computer vision foundations.",
+    skills: ["Machine Learning", "Deep Learning", "Python AI", "Neural Networks"]
+  },
+  {
+    id: "overview-ai",
+    title: "Overview of AI (Indonesian)",
+    issuer: "Huawei ICT Academy",
+    issueDate: "November 11, 2025",
+    validUntil: "Lifetime Credential",
+    credentialId: "ICT20251111001964",
+    verifyUrl: null,
+    image: "/images/certificate/Overview of AI (Indonesian).png",
+    accent: "#A855F7",
+    category: "ICT & Machine Intelligence",
+    badge: "ICT Academy Certified",
+    description: "Completed verified study and comprehensive examination in foundational artificial intelligence principles, machine intelligence architectures, and enterprise ICT integration.",
+    skills: ["AI Fundamentals", "ICT Infrastructure", "Algorithm Analysis", "Data Principles"]
+  }
+];
+

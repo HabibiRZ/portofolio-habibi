@@ -4,6 +4,7 @@ import Preloader from './components/Preloader';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Projects from './components/Projects';
+import Certificates from './components/Certificates';
 import TeamGallery from './components/TeamGallery';
 import SkillsMatrix from './components/SkillsMatrix';
 import Education from './components/Education';
@@ -200,6 +201,7 @@ export default function App() {
       <main className="main-content-flow">
         <Hero onDownloadCv={handleDownloadCv} />
         <Projects />
+        <Certificates />
         <TeamGallery />
         <SkillsMatrix />
         <Education />

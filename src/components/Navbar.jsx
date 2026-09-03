@@ -14,7 +14,7 @@ export default function Navbar({ onDownloadCv }) {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
 
-      const sections = ['hero', 'work', 'gallery', 'skills', 'education', 'contact'];
+      const sections = ['hero', 'work', 'certificates', 'gallery', 'skills', 'education', 'contact'];
       const scrollPos = window.scrollY + 160;
 
       for (const id of sections) {
@@ -42,6 +42,7 @@ export default function Navbar({ onDownloadCv }) {
   const navLinks = [
     { id: 'hero', label: 'Overview' },
     { id: 'work', label: 'Systems & Work' },
+    { id: 'certificates', label: 'Certificates' },
     { id: 'gallery', label: 'Internship Team' },
     { id: 'skills', label: 'Tech Matrix' },
     { id: 'education', label: 'Education' },
