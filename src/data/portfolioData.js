@@ -58,6 +58,20 @@ export const workExperience = [
     summary: "Maintained and enhanced an active production archival and administration system inside a major regional bank, writing patches, implementing feature requests, and performing rigorous regression QA.",
     chips: ["PHP", "MySQL", "Debugging & QA", "Financial Security", "Legacy Refactoring"],
     outcome: "Learned to read someone else's code before writing my own.",
+    screenshots: [
+      {
+        url: "/images/project/sipabs1_blurred_hd.jpg",
+        title: "Archival Search & Verification Ledger",
+        tag: "Search & Retrieval",
+        description: "Production search ledger utilized by Bank Sumut archival personnel to query, index, and audit customer records across regional branch archives."
+      },
+      {
+        url: "/images/project/sipabs2_blurred_hd.jpg",
+        title: "Standardized Document Intake & Classification Form",
+        tag: "Data Ingestion & Intake",
+        description: "Standardized intake workflow supporting document classification codes, storage box identifiers, and digital file attachments with banking audit validation."
+      }
+    ],
     architecture: {
       overview: "SIPABS handles daily high-volume digital document archival for Bank Sumut's branches. The priority was zero downtime during maintenance and strict audit logging.",
       highlights: [
@@ -80,8 +94,28 @@ export const workExperience = [
     accent: "var(--color-cyan)",
     accentColor: "#06B6D4",
     summary: "Supported webinars and JMO mobile app user activations, then engineered two internal analytics tools: a performance tracker for interns and an interactive executive monitoring dashboard for ASN participation across Medan regional offices.",
-    chips: ["JavaScript", "Data Visualization", "User Support", "Analytics", "Executive Reporting"],
+    chips: ["JavaScript", "Chart.js", "Data Visualization", "User Support", "Analytics", "Executive Reporting"],
     outcome: "Data only helps if the person reading it isn't a developer.",
+    screenshots: [
+      {
+        url: "/images/project/sertakan_blurred.png",
+        title: "SERTAKAN Regional ASN Participation Dashboard",
+        tag: "Executive Monitoring",
+        description: "Interactive executive portal tracking participant enrollment metrics and coverage gaps across Medan municipal government departments under formal decree."
+      },
+      {
+        url: "/images/project/programbpjs_blurred.png",
+        title: "Employer & Business Entity Distribution Analytics",
+        tag: "Data Visualization",
+        description: "Dynamic aggregation dashboard categorizing participating business entities by scale and social security program schemes (JKK, JKM, JHT, JP)."
+      },
+      {
+        url: "/images/project/jakon_blurred.png",
+        title: "Construction Services (JAKON) Potential Metrics",
+        tag: "Procurement Analytics",
+        description: "Procurement and infrastructure tracking dashboard visualizing project values, funding sources, and contractor compliance across Medan branches."
+      }
+    ],
     architecture: {
       overview: "Built an internal metrics dashboard processing daily participant onboarding rates across Medan sub-districts to identify low-adoption areas for rapid intervention.",
       highlights: [
@@ -106,6 +140,26 @@ export const workExperience = [
     summary: "Designed and built a budget-tracking and fiscal reporting system completely from scratch — database schema, REST API, JWT authentication, interactive reporting dashboards, and automated deployment.",
     chips: ["JavaScript", "Chart.js", "Google Sheets API", "Vercel", "RESTful API", "Full-Stack"],
     outcome: "Built alone, so every part of the stack had to make sense to me.",
+    screenshots: [
+      {
+        url: "/images/project/discukcapil2.png",
+        title: "Executive Financial Dashboard & Expenditure Analytics",
+        tag: "Real-time Analytics",
+        description: "High-level overview displaying budget burn ratios, expenditure distributions across expense categories, and top-performing PPTK operational units."
+      },
+      {
+        url: "/images/project/discukcapil1.png",
+        title: "Program Budget Realization & Expenditure Ledger",
+        tag: "Fiscal Reporting",
+        description: "Full municipal fiscal ledger tracking P-APBD allocated budgets, actual expenditures, and remaining balances across departmental programs."
+      },
+      {
+        url: "/images/project/discukcapil3.png",
+        title: "PPTK Activity & Operational Sub-Budget Tracking",
+        tag: "Granular Audit",
+        description: "Sub-activity breakdown allowing administrators to inspect line-item operational budgets, procurement details, and execution milestones per technical officer."
+      }
+    ],
     architecture: {
       overview: "Engineered a lightweight, cost-effective fiscal tracking system for municipal administrators, leveraging Google Sheets API as a synchronized backend database with strict validation layers.",
       highlights: [
@@ -130,6 +184,38 @@ export const workExperience = [
     summary: "A self-directed system pairing facial recognition with strict geolocation validation, so attendance cannot be spoofed by photo or mock location — built to understand how a computer-vision pipeline actually behaves in production.",
     chips: ["Python", "Computer Vision", "OpenCV", "Geofencing", "Anti-Spoofing"],
     outcome: "Built out of curiosity, not a requirement.",
+    screenshots: [
+      {
+        url: "/images/project/face1.png",
+        title: "Student Attendance Portal & Course Session Hub",
+        tag: "Student Portal",
+        description: "Interactive student dashboard displaying active semester courses, automated schedule alerts, attendance tallies, and quick clock-in shortcuts."
+      },
+      {
+        url: "/images/project/face2.png",
+        title: "Biometric Facial Recognition & GPS Polygon Verification",
+        tag: "Computer Vision & GPS",
+        description: "Real-time webcam verification camera interface featuring facial feature alignment, anti-spoofing heuristic detection, and device GPS coordinate polygon checks."
+      },
+      {
+        url: "/images/project/face3.png",
+        title: "Lecturer Command Center & Classroom Performance",
+        tag: "Instructor Analytics",
+        description: "Educator command center with real-time statistics on total enrolled students, course counts, completed meetings, and cohort attendance rates."
+      },
+      {
+        url: "/images/project/face4.png",
+        title: "Course Meeting Scheduler & Session Management Grid",
+        tag: "Schedule Management",
+        description: "Comprehensive session planner enabling instructors to set meeting dates, configure attendance time windows, and launch active verification sessions."
+      },
+      {
+        url: "/images/project/face5.png",
+        title: "Attendance Audit Report & Student Records Ledger",
+        tag: "Audit & Reporting",
+        description: "Granular attendance records ledger calculating percentage attendance per student, meeting-by-meeting compliance, and official audit exports."
+      }
+    ],
     architecture: {
       overview: "Multi-layered biometric verification combining real-time face liveness detection (blink/head motion) with GPS coordinate polygon validation.",
       highlights: [

@@ -1,30 +1,30 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, ExternalLink, Layers, ArrowUpRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, Layers, ArrowUpRight, Camera, Eye, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { workExperience } from '../data/portfolioData';
 import { playHoverSound, playClickSound, playSwitchSound, playModalSound } from '../utils/soundEffects';
 import ProjectModal from './ProjectModal';
 
 export default function Projects() {
-  const [expandedId, setExpandedId] = useState('bank-sumut');
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [expandedId, setExpandedId] = useState('sipabs');
+  const [modalState, setModalState] = useState({ isOpen: false, project: null, initialIndex: 0 });
 
   const toggleExpand = (id) => {
     playSwitchSound();
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
-  const handleOpenModal = (project, e) => {
+  const handleOpenModal = (project, initialIndex = 0, e = null) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     playModalSound();
-    setSelectedProject(project);
+    setModalState({ isOpen: true, project, initialIndex });
   };
 
   const handleCloseModal = () => {
     playClickSound();
-    setSelectedProject(null);
+    setModalState({ isOpen: false, project: null, initialIndex: 0 });
   };
 
   const handleCardMouseMove = (e) => {
@@ -47,11 +47,14 @@ export default function Projects() {
             </div>
             <h2 className="section-heading">What I've Engineered</h2>
             <p className="section-subtext">
-              Four battle-tested systems spanning regional banking, public administration, municipal finance, and computer vision.
+              Four battle-tested systems spanning regional banking, public administration, municipal finance, and computer vision — complete with production screenshots and technical architecture.
             </p>
           </div>
           <div className="section-header-note mono">
-            <span>CLICK CARDS TO REVEAL DETAILS</span>
+            <span className="live-screens-pill">
+              <span className="pulse-ping-dot" />
+              <span>13 PRODUCTION SCREENS VERIFIED</span>
+            </span>
           </div>
         </div>
 
@@ -59,6 +62,8 @@ export default function Projects() {
         <div className="work-cards-grid reveal-on-scroll delay-1">
           {workExperience.map((item) => {
             const isExpanded = expandedId === item.id;
+            const hasScreenshots = item.screenshots && item.screenshots.length > 0;
+
             return (
               <div
                 key={item.id}
@@ -73,9 +78,20 @@ export default function Projects() {
 
                 <div className="work-card-header">
                   <div className="work-card-index mono">{item.index}</div>
-                  <div className="work-card-badge mono" style={{ borderColor: `${item.accentColor}40`, color: item.accentColor }}>
+                  <div
+                    className="work-card-badge mono"
+                    style={{ borderColor: `${item.accentColor}40`, color: item.accentColor }}
+                  >
                     {item.type}
                   </div>
+
+                  {hasScreenshots && (
+                    <div className="card-screens-badge mono" title="Live production interface captures available">
+                      <Camera size={12} className="text-emerald" />
+                      <span>{item.screenshots.length} Screens</span>
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     className="card-toggle-icon-btn"
@@ -90,8 +106,13 @@ export default function Projects() {
                 </div>
 
                 <div className="work-card-body">
-                  <h3 className="work-card-title">{item.title}</h3>
-                  <div className="work-card-org mono">{item.org}</div>
+                  <div className="work-card-top-info">
+                    <div>
+                      <h3 className="work-card-title">{item.title}</h3>
+                      <div className="work-card-org mono">{item.org}</div>
+                    </div>
+                  </div>
+
                   <p className="work-card-summary">{item.summary}</p>
 
                   {/* Chips */}
@@ -103,6 +124,46 @@ export default function Projects() {
                     ))}
                   </div>
 
+                  {/* Interactive Screenshot Quick-Strip */}
+                  {hasScreenshots && (
+                    <div className="card-screenshots-preview-strip">
+                      <div className="preview-strip-header mono">
+                        <span className="preview-strip-label">
+                          <ImageIcon size={13} className="text-emerald" />
+                          <span>PRODUCTION SCREENSHOTS ({item.screenshots.length})</span>
+                        </span>
+                        <span className="preview-strip-hint">Click thumbnail to inspect</span>
+                      </div>
+                      <div className="preview-thumbnails-row">
+                        {item.screenshots.map((screen, idx) => (
+                          <div
+                            key={screen.url}
+                            className="preview-thumb-card"
+                            onClick={(e) => handleOpenModal(item, idx, e)}
+                            onMouseEnter={playHoverSound}
+                            title={`${screen.title} — Click to inspect`}
+                          >
+                            <div className="thumb-img-wrap">
+                              <img
+                                src={screen.url}
+                                alt={screen.title}
+                                loading="lazy"
+                                className="thumb-preview-img"
+                              />
+                              <div className="thumb-hover-overlay">
+                                <Eye size={18} className="thumb-zoom-icon" />
+                                <span className="thumb-index-tag mono">{idx + 1}/{item.screenshots.length}</span>
+                              </div>
+                            </div>
+                            <div className="thumb-caption-meta mono">
+                              <span className="thumb-tag">{screen.tag}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Expandable Outcome Area */}
                   <div className={`work-outcome-drawer ${isExpanded ? 'open' : ''}`}>
                     <div className="work-outcome-inner">
@@ -111,16 +172,18 @@ export default function Projects() {
                         <p className="outcome-quote">"{item.outcome}"</p>
                       </div>
 
-                      <button
-                        type="button"
-                        className="btn-view-architecture mono"
-                        onClick={(e) => handleOpenModal(item, e)}
-                        onMouseEnter={playHoverSound}
-                      >
-                        <Layers size={14} />
-                        <span>View System Architecture Breakdown</span>
-                        <ArrowUpRight size={14} />
-                      </button>
+                      <div className="card-actions-row">
+                        <button
+                          type="button"
+                          className="btn-view-architecture mono"
+                          onClick={(e) => handleOpenModal(item, 0, e)}
+                          onMouseEnter={playHoverSound}
+                        >
+                          <Layers size={15} />
+                          <span>View Screenshots &amp; System Architecture</span>
+                          <ArrowUpRight size={15} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -130,10 +193,11 @@ export default function Projects() {
         </div>
       </div>
 
-      {/* Detail Modal */}
-      {selectedProject && (
+      {/* Detail Modal with Interactive Screenshot Gallery */}
+      {modalState.isOpen && modalState.project && (
         <ProjectModal
-          project={selectedProject}
+          project={modalState.project}
+          initialImageIndex={modalState.initialIndex}
           onClose={handleCloseModal}
         />
       )}
