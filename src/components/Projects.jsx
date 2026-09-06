@@ -1,16 +1,61 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Layers, ArrowUpRight, Camera, Eye, Sparkles, Image as ImageIcon } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  Layers,
+  ArrowUpRight,
+  Camera,
+  Eye,
+  Sparkles,
+  Image as ImageIcon,
+  Lock,
+  ExternalLink,
+  CheckCircle2,
+  Database,
+  Shield,
+  Activity,
+  Maximize2
+} from 'lucide-react';
 import { workExperience } from '../data/portfolioData';
 import { playHoverSound, playClickSound, playSwitchSound, playModalSound } from '../utils/soundEffects';
 import ProjectModal from './ProjectModal';
 
 export default function Projects() {
-  const [expandedId, setExpandedId] = useState('sipabs');
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [expandedArchId, setExpandedArchId] = useState(null);
+  // Track selected screenshot index for each project
+  const [activeScreenIndexes, setActiveScreenIndexes] = useState({
+    'sipabs': 0,
+    'bpjs-dashboard': 0,
+    'disdukcapil': 0,
+    'ai-attendance': 0
+  });
   const [modalState, setModalState] = useState({ isOpen: false, project: null, initialIndex: 0 });
 
-  const toggleExpand = (id) => {
+  const categories = [
+    { id: 'all', label: 'All Systems (4)' },
+    { id: 'banking', label: 'Banking & Archival' },
+    { id: 'admin', label: 'Public Administration' },
+    { id: 'vision', label: 'Biometric AI & Vision' }
+  ];
+
+  const handleCategoryFilter = (id) => {
     playSwitchSound();
-    setExpandedId((prev) => (prev === id ? null : id));
+    setActiveCategory(id);
+  };
+
+  const filteredProjects = workExperience.filter((item) => {
+    if (activeCategory === 'all') return true;
+    if (activeCategory === 'banking') return item.id === 'sipabs';
+    if (activeCategory === 'admin') return item.id === 'bpjs-dashboard' || item.id === 'disdukcapil';
+    if (activeCategory === 'vision') return item.id === 'ai-attendance';
+    return true;
+  });
+
+  const handleSelectScreen = (projectId, index, e) => {
+    e.stopPropagation();
+    playSwitchSound();
+    setActiveScreenIndexes((prev) => ({ ...prev, [projectId]: index }));
   };
 
   const handleOpenModal = (project, initialIndex = 0, e = null) => {
@@ -27,180 +72,258 @@ export default function Projects() {
     setModalState({ isOpen: false, project: null, initialIndex: 0 });
   };
 
-  const handleCardMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
-    e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
+  const toggleArchDrawer = (id, e) => {
+    e.stopPropagation();
+    playClickSound();
+    setExpandedArchId((prev) => (prev === id ? null : id));
+  };
+
+  // Map simulated URLs for the browser bar
+  const getSimulatedUrl = (id) => {
+    switch (id) {
+      case 'sipabs':
+        return 'https://sipabs.banksumut.co.id/archive-ledger/audit';
+      case 'bpjs-dashboard':
+        return 'https://sertakan.bpjsketenagakerjaan.go.id/medan/monitoring';
+      case 'disdukcapil':
+        return 'https://keuangan.disdukcapil.medan.go.id/budget-ledger';
+      case 'ai-attendance':
+        return 'https://attendance.vision.internal/biometric-gate';
+      default:
+        return 'https://habibi-systems.internal/production';
+    }
   };
 
   return (
     <section className="section-block" id="work">
       <div className="wrap">
-        {/* Section Header */}
+        {/* Section Header with Volume Badge */}
         <div className="section-header-row reveal-on-scroll">
           <div>
-            <div className="section-category-tag mono">
-              <span className="dot-emerald" />
-              <span>PRODUCTION SYSTEMS &amp; ARCHITECTURE</span>
+            <div className="volume-badge">
+              <span className="dot-sky" />
+              <span>VOLUME II: FLAGSHIP SYSTEMS &amp; PRODUCTION ARCHITECTURE</span>
             </div>
-            <h2 className="section-heading">What I've Engineered</h2>
-            <p className="section-subtext">
-              Four battle-tested systems spanning regional banking, public administration, municipal finance, and computer vision — complete with production screenshots and technical architecture.
+            <h2 className="volume-heading">
+              Proven <span className="font-serif-italic text-sky">systems.</span> <br />
+              Measurable <span className="font-serif-italic">impact.</span>
+            </h2>
+            <p className="volume-subtext">
+              Battle-tested institutional software spanning regional banking digitization, municipal public administration, and biometric verification — complete with production audits and interactive screen viewports.
             </p>
           </div>
           <div className="section-header-note mono">
             <span className="live-screens-pill">
               <span className="pulse-ping-dot" />
-              <span>13 PRODUCTION SCREENS VERIFIED</span>
+              <span>13 PRODUCTION SCREENS AUDITED</span>
             </span>
           </div>
         </div>
 
-        {/* Work Cards Grid / List */}
-        <div className="work-cards-grid reveal-on-scroll delay-1">
-          {workExperience.map((item) => {
-            const isExpanded = expandedId === item.id;
-            const hasScreenshots = item.screenshots && item.screenshots.length > 0;
+        {/* Category Filters */}
+        <div className="skills-filter-tabs reveal-on-scroll delay-1" style={{ marginBottom: '32px' }}>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              className={`skills-tab-btn mono ${activeCategory === cat.id ? 'active' : ''}`}
+              onClick={() => handleCategoryFilter(cat.id)}
+              onMouseEnter={playHoverSound}
+            >
+              <span>{cat.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Flagship Projects Dual-Panel Deck */}
+        <div className="flagship-projects-wrapper reveal-on-scroll delay-1">
+          {filteredProjects.map((item) => {
+            const hasScreens = item.screenshots && item.screenshots.length > 0;
+            const currentIdx = activeScreenIndexes[item.id] || 0;
+            const currentScreen = hasScreens ? item.screenshots[currentIdx] : null;
+            const isArchOpen = expandedArchId === item.id;
 
             return (
               <div
                 key={item.id}
-                className={`work-card spotlight-card ${isExpanded ? 'card-expanded' : ''}`}
-                style={{ '--card-accent': item.accentColor }}
-                onClick={() => toggleExpand(item.id)}
+                className="flagship-project-card spotlight-card"
+                style={{
+                  '--project-accent': item.accentColor,
+                  '--project-glow': `${item.accentColor}25`
+                }}
                 onMouseEnter={playHoverSound}
-                onMouseMove={handleCardMouseMove}
               >
-                {/* Accent Top Border Bar */}
-                <div className="card-accent-bar" style={{ backgroundColor: item.accentColor }} />
+                <div className="flagship-layout">
+                  {/* Left Column: Control Deck & System Metadata */}
+                  <div className="flagship-deck">
+                    <div className="flagship-deck-header">
+                      <div className="flagship-index-tag">
+                        <span>{item.index} //</span>
+                        <span>{item.type.toUpperCase()}</span>
+                      </div>
+                      <div className="flagship-sector-badge">
+                        <span>{item.period}</span>
+                      </div>
+                    </div>
 
-                <div className="work-card-header">
-                  <div className="work-card-index mono">{item.index}</div>
-                  <div
-                    className="work-card-badge mono"
-                    style={{ borderColor: `${item.accentColor}40`, color: item.accentColor }}
-                  >
-                    {item.type}
+                    <h3 className="flagship-title">
+                      {item.title}
+                    </h3>
+
+                    <div className="flagship-org-row">
+                      <span style={{ color: item.accentColor, fontWeight: '700' }}>{item.org}</span>
+                      <span>•</span>
+                      <span>{item.role}</span>
+                      <span>•</span>
+                      <span>{item.teamSize}</span>
+                    </div>
+
+                    <p className="flagship-summary">
+                      {item.summary}
+                    </p>
+
+                    {/* Impact Callout Box */}
+                    <div className="flagship-impact-callout">
+                      <div className="mono" style={{ fontSize: '0.72rem', color: item.accentColor, letterSpacing: '0.1em', marginBottom: '4px' }}>
+                        OUTCOME &amp; LEARNING
+                      </div>
+                      <span className="font-serif-italic">"{item.outcome}"</span>
+                    </div>
+
+                    {/* Tech Stack Chips */}
+                    <div className="flagship-chips-row">
+                      {item.chips.map((chip) => (
+                        <span key={chip} className="flagship-chip">
+                          {chip}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flagship-actions-row">
+                      <button
+                        type="button"
+                        className="flagship-btn-primary"
+                        onClick={(e) => handleOpenModal(item, currentIdx, e)}
+                        onMouseEnter={playHoverSound}
+                      >
+                        <Eye size={15} />
+                        <span>INSPECT PRODUCTION UI</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="flagship-btn-secondary"
+                        onClick={(e) => toggleArchDrawer(item.id, e)}
+                        onMouseEnter={playHoverSound}
+                      >
+                        <Layers size={15} />
+                        <span>{isArchOpen ? 'HIDE ARCHITECTURE' : 'SYSTEM BLUEPRINT'}</span>
+                        {isArchOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                      </button>
+                    </div>
                   </div>
 
-                  {hasScreenshots && (
-                    <div className="card-screens-badge mono" title="Live production interface captures available">
-                      <Camera size={12} className="text-emerald" />
-                      <span>{item.screenshots.length} Screens</span>
+                  {/* Right Column: Simulated Browser Viewport Window */}
+                  <div className="flagship-browser-window">
+                    <div className="flagship-browser-bar">
+                      <div className="flagship-traffic-dots">
+                        <span className="traffic-dot red" />
+                        <span className="traffic-dot yellow" />
+                        <span className="traffic-dot green" />
+                      </div>
+                      <div className="flagship-browser-url">
+                        <Lock size={12} className="text-emerald" />
+                        <span>{getSimulatedUrl(item.id)}</span>
+                      </div>
+                      <div className="mono" style={{ fontSize: '0.7rem', color: item.accentColor }}>
+                        AUDITED
+                      </div>
                     </div>
-                  )}
 
-                  <button
-                    type="button"
-                    className="card-toggle-icon-btn"
-                    aria-label="Toggle details"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleExpand(item.id);
-                    }}
-                  >
-                    {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  </button>
+                    {/* Interactive Stage */}
+                    {hasScreens && currentScreen && (
+                      <div
+                        className="flagship-browser-stage"
+                        onClick={(e) => handleOpenModal(item, currentIdx, e)}
+                        title="Click to view full inspection"
+                      >
+                        <img
+                          src={currentScreen.url}
+                          alt={currentScreen.title}
+                          className="flagship-browser-img"
+                          loading="lazy"
+                        />
+                        <div className="flagship-browser-overlay">
+                          <div className="flagship-stage-caption">{currentScreen.title}</div>
+                          <div className="flagship-stage-tag">{currentScreen.tag} • CLICK TO ENLARGE</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Thumbnail Switcher Bar */}
+                    {hasScreens && item.screenshots.length > 1 && (
+                      <div className="flagship-thumbs-carousel">
+                        {item.screenshots.map((s, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            className={`flagship-thumb-btn ${currentIdx === idx ? 'active' : ''}`}
+                            onClick={(e) => handleSelectScreen(item.id, idx, e)}
+                            onMouseEnter={playHoverSound}
+                            title={s.title}
+                          >
+                            <img src={s.url} alt={s.title} className="flagship-thumb-img" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="work-card-body">
-                  <div className="work-card-top-info">
+                {/* Expandable Architecture Blueprint Drawer */}
+                {isArchOpen && item.architecture && (
+                  <div className="flagship-arch-drawer reveal-on-scroll">
                     <div>
-                      <h3 className="work-card-title">{item.title}</h3>
-                      <div className="work-card-org mono">{item.org}</div>
-                    </div>
-                  </div>
-
-                  <p className="work-card-summary">{item.summary}</p>
-
-                  {/* Chips */}
-                  <div className="work-card-chips">
-                    {item.chips.map((chip) => (
-                      <span key={chip} className="chip-badge mono">
-                        {chip}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Interactive Screenshot Quick-Strip */}
-                  {hasScreenshots && (
-                    <div className="card-screenshots-preview-strip">
-                      <div className="preview-strip-header mono">
-                        <span className="preview-strip-label">
-                          <ImageIcon size={13} className="text-emerald" />
-                          <span>PRODUCTION SCREENSHOTS ({item.screenshots.length})</span>
-                        </span>
-                        <span className="preview-strip-hint">Click thumbnail to inspect</span>
-                      </div>
-                      <div className="preview-thumbnails-row">
-                        {item.screenshots.map((screen, idx) => (
-                          <div
-                            key={screen.url}
-                            className="preview-thumb-card"
-                            onClick={(e) => handleOpenModal(item, idx, e)}
-                            onMouseEnter={playHoverSound}
-                            title={`${screen.title} — Click to inspect`}
-                          >
-                            <div className="thumb-img-wrap">
-                              <img
-                                src={screen.url}
-                                alt={screen.title}
-                                loading="lazy"
-                                className="thumb-preview-img"
-                              />
-                              <div className="thumb-hover-overlay">
-                                <Eye size={18} className="thumb-zoom-icon" />
-                                <span className="thumb-index-tag mono">{idx + 1}/{item.screenshots.length}</span>
-                              </div>
-                            </div>
-                            <div className="thumb-caption-meta mono">
-                              <span className="thumb-tag">{screen.tag}</span>
-                            </div>
-                          </div>
+                      <div className="flagship-arch-title">ARCHITECTURE OVERVIEW</div>
+                      <p style={{ fontSize: '0.92rem', color: 'var(--color-text-muted)', margin: '0 0 12px 0', lineHeight: '1.6' }}>
+                        {item.architecture.overview}
+                      </p>
+                      <div className="flagship-chips-row">
+                        {item.architecture.stack.map((s) => (
+                          <span key={s} className="flagship-chip mono" style={{ background: 'rgba(56, 189, 248, 0.08)', color: '#38bdf8' }}>
+                            {s}
+                          </span>
                         ))}
                       </div>
                     </div>
-                  )}
 
-                  {/* Expandable Outcome Area */}
-                  <div className={`work-outcome-drawer ${isExpanded ? 'open' : ''}`}>
-                    <div className="work-outcome-inner">
-                      <div className="outcome-quote-box">
-                        <span className="outcome-tag mono">CORE LESSON //</span>
-                        <p className="outcome-quote">"{item.outcome}"</p>
-                      </div>
-
-                      <div className="card-actions-row">
-                        <button
-                          type="button"
-                          className="btn-view-architecture mono"
-                          onClick={(e) => handleOpenModal(item, 0, e)}
-                          onMouseEnter={playHoverSound}
-                        >
-                          <Layers size={15} />
-                          <span>View Screenshots &amp; System Architecture</span>
-                          <ArrowUpRight size={15} />
-                        </button>
-                      </div>
+                    <div>
+                      <div className="flagship-arch-title">ENGINEERING HIGHLIGHTS</div>
+                      <ul className="flagship-arch-list mono">
+                        {item.architecture.highlights.map((h, i) => (
+                          <li key={i}>
+                            <CheckCircle2 size={14} className="text-emerald" style={{ flexShrink: 0, marginTop: '3px' }} />
+                            <span>{h}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Detail Modal with Interactive Screenshot Gallery */}
-      {modalState.isOpen && modalState.project && (
-        <ProjectModal
-          project={modalState.project}
-          initialImageIndex={modalState.initialIndex}
-          onClose={handleCloseModal}
-        />
-      )}
+      {/* Full Detailed Inspection Modal */}
+      <ProjectModal
+        isOpen={modalState.isOpen}
+        project={modalState.project}
+        initialIndex={modalState.initialIndex}
+        onClose={handleCloseModal}
+      />
     </section>
   );
 }

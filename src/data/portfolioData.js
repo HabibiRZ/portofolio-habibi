@@ -13,6 +13,9 @@ export const personalData = {
   phone: "+62 812 7111 8127",
   cvFile: "/CV.pdf",
   profilePhoto: "/HABIBI RIZQULLAH.JPG",
+  github: "https://github.com/HabibiRZ",
+  instagram: "https://www.instagram.com/habibirz005/",
+  linkedin: "https://www.linkedin.com/in/habibi-rizqullah-2b121329a/",
   bio: "I build web systems for organizations that can't afford to get their data wrong — archives, financial reports, and participation dashboards. Diploma in Informatics Engineering from Universitas Sumatera Utara, based in Medan, and open to full-stack engineering roles wherever the challenge creates real impact.",
 };
 

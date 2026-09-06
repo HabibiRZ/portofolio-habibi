@@ -10,13 +10,16 @@ export default function Education() {
         {/* Section Header */}
         <div className="section-header-row reveal-on-scroll">
           <div>
-            <div className="section-category-tag mono">
-              <span className="dot-amber" />
-              <span>ACADEMIC FOUNDATION</span>
+            <div className="volume-badge">
+              <span className="dot-sky" />
+              <span>VOLUME V: ACADEMIC BACKGROUND &amp; QUALIFICATIONS</span>
             </div>
-            <h2 className="section-heading">Education &amp; Qualifications</h2>
-            <p className="section-subtext">
-              Formal engineering degree and science foundation from North Sumatra's premier institutions.
+            <h2 className="volume-heading">
+              Academic <span className="font-serif-italic text-sky">foundations.</span> <br />
+              Engineering <span className="font-serif-italic">rigor.</span>
+            </h2>
+            <p className="volume-subtext">
+              Formal informatics engineering degree and academic honors from North Sumatra's premier university.
             </p>
           </div>
         </div>

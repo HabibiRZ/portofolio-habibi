@@ -11,10 +11,12 @@ import Education from './components/Education';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import Toast from './components/Toast';
+import ResumeModal from './components/ResumeModal';
 import { playSuccessSound } from './utils/soundEffects';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const [resumeModalOpen, setResumeModalOpen] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
@@ -87,6 +89,11 @@ export default function App() {
     setTimeout(() => {
       setToast({ visible: false, message: '', type: 'success' });
     }, 3800);
+  };
+
+  const handleOpenResume = (e) => {
+    if (e) e.preventDefault();
+    setResumeModalOpen(true);
   };
 
   const handleDownloadCv = async (e) => {
@@ -189,23 +196,29 @@ export default function App() {
       {/* Preloader on initial load */}
       {loading && <Preloader onComplete={() => setLoading(false)} />}
 
-      {/* Cyber Grid Background & Spotlights */}
+      {/* Reference Atmosphere: Dot Matrix Grid & Angular Corner Light Beams */}
+      <div className="bg-dot-matrix" aria-hidden="true" />
+      <div className="light-beam-wrapper" aria-hidden="true">
+        <div className="light-beam-left" />
+        <div className="light-beam-left-sub" />
+        <div className="light-beam-right" />
+        <div className="light-beam-right-sub" />
+      </div>
       <div className="cyber-ambient-glow glow-1" aria-hidden="true" />
       <div className="cyber-ambient-glow glow-2" aria-hidden="true" />
-      <div className="cyber-grid-mesh" aria-hidden="true" />
 
       {/* HUD Navigation */}
-      <Navbar onDownloadCv={handleDownloadCv} />
+      <Navbar onDownloadCv={handleOpenResume} />
 
       {/* Main Content Sections */}
       <main className="main-content-flow">
-        <Hero onDownloadCv={handleDownloadCv} />
+        <Hero onDownloadCv={handleOpenResume} />
         <Projects />
         <Certificates />
         <TeamGallery />
         <SkillsMatrix />
         <Education />
-        <ContactSection onDownloadCv={handleDownloadCv} showToastMessage={showToast} />
+        <ContactSection showToastMessage={showToast} />
       </main>
 
       {/* Footer */}
@@ -213,6 +226,13 @@ export default function App() {
 
       {/* Floating Notification Toast */}
       <Toast toast={toast} onClose={() => setToast({ visible: false, message: '', type: 'success' })} />
+
+      {/* Executive Curriculum Vitae / Resume Overview Modal */}
+      <ResumeModal
+        isOpen={resumeModalOpen}
+        onClose={() => setResumeModalOpen(false)}
+        onDownloadCv={handleDownloadCv}
+      />
     </div>
   );
 }

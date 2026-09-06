@@ -58,13 +58,16 @@ export default function SkillsMatrix() {
         {/* Section Header */}
         <div className="section-header-row reveal-on-scroll">
           <div>
-            <div className="section-category-tag mono">
-              <span className="dot-cyan" />
-              <span>TECHNICAL MATRIX</span>
+            <div className="volume-badge">
+              <span className="dot-sky" />
+              <span>VOLUME IV: COMPETENCY MATRIX &amp; TECHNICAL ARSENAL</span>
             </div>
-            <h2 className="section-heading">Skills &amp; Engineering Disciplines</h2>
-            <p className="section-subtext">
-              Categorized technologies, frameworks, relational databases, and architectural practices.
+            <h2 className="volume-heading">
+              Core <span className="font-serif-italic text-sky">capabilities.</span> <br />
+              Technical <span className="font-serif-italic">arsenal.</span>
+            </h2>
+            <p className="volume-subtext">
+              Categorized technologies, frameworks, relational database management, and architecture practices verified through production deployments.
             </p>
           </div>
           <div className="skills-counter mono">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Download, Menu, X, Terminal } from 'lucide-react';
+import { Volume2, VolumeX, ArrowDownRight, Download, Menu, X, Terminal, Sparkles, FileText } from 'lucide-react';
 import { playHoverSound, playClickSound, toggleSound, isSoundEnabled } from '../utils/soundEffects';
 
 export default function Navbar({ onDownloadCv }) {
@@ -14,7 +14,7 @@ export default function Navbar({ onDownloadCv }) {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
 
-      const sections = ['hero', 'work', 'certificates', 'gallery', 'skills', 'education', 'contact'];
+      const sections = ['hero', 'about', 'work', 'certificates', 'gallery', 'skills', 'education', 'contact'];
       const scrollPos = window.scrollY + 160;
 
       for (const id of sections) {
@@ -39,12 +39,34 @@ export default function Navbar({ onDownloadCv }) {
     setSoundActive(newState);
   };
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.removeProperty('overflow');
+    }
+    return () => {
+      document.body.style.removeProperty('overflow');
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen]);
+
   const navLinks = [
-    { id: 'hero', label: 'Overview' },
-    { id: 'work', label: 'Systems & Work' },
-    { id: 'certificates', label: 'Certificates' },
-    { id: 'gallery', label: 'Internship Team' },
-    { id: 'skills', label: 'Tech Matrix' },
+    { id: 'hero', label: 'Index' },
+    { id: 'about', label: 'Identity' },
+    { id: 'work', label: 'Systems' },
+    { id: 'certificates', label: 'Credentials' },
+    { id: 'gallery', label: 'Team' },
+    { id: 'skills', label: 'Stack' },
     { id: 'education', label: 'Education' },
     { id: 'contact', label: 'Contact' },
   ];
@@ -59,7 +81,7 @@ export default function Navbar({ onDownloadCv }) {
   };
 
   return (
-    <header className={`navbar-header ${scrolled ? 'scrolled' : ''}`}>
+    <header className={`navbar-header ${scrolled ? 'scrolled' : ''} ${mobileMenuOpen ? 'menu-open' : ''}`}>
       <div className="navbar-container wrap">
         {/* Brand */}
         <a
@@ -109,7 +131,7 @@ export default function Navbar({ onDownloadCv }) {
           >
             {soundActive ? (
               <>
-                <Volume2 size={16} className="sound-icon text-emerald" />
+                <Volume2 size={16} className="sound-icon text-sky" />
                 <div className="sound-wave-bars">
                   <span className="bar bar-1" />
                   <span className="bar bar-2" />
@@ -124,59 +146,80 @@ export default function Navbar({ onDownloadCv }) {
             )}
           </button>
 
-          {/* Quick CV Download Button */}
+          {/* Quick CV Overview & Download Button */}
           <button
             type="button"
             className="btn-nav-cv"
             onClick={onDownloadCv}
             onMouseEnter={playHoverSound}
+            title="Overview Curriculum Vitae (PDF)"
           >
-            <Download size={14} className="btn-cv-icon" />
-            <span>CV</span>
+            <FileText size={14} className="btn-cv-icon" />
+            <span>CV / RESUME</span>
           </button>
 
           {/* Mobile Hamburger Toggle */}
           <button
             type="button"
-            className="nav-mobile-toggle"
+            className={`nav-mobile-toggle ${mobileMenuOpen ? 'open' : ''}`}
             onClick={() => {
               playClickSound();
               setMobileMenuOpen(!mobileMenuOpen);
             }}
-            aria-label="Toggle Menu"
+            aria-label="Toggle Navigation Menu"
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Nav Dropdown Panel */}
       {mobileMenuOpen && (
-        <div className="mobile-menu-drawer">
-          <div className="mobile-menu-links">
-            {navLinks.map((link) => (
+        <>
+          <div
+            className="mobile-dropdown-backdrop"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="mobile-nav-dropdown" role="navigation" aria-label="Mobile Navigation">
+            <div className="mobile-nav-links">
+              {navLinks.map((link, idx) => (
+                <button
+                  key={link.id}
+                  type="button"
+                  className={`mobile-nav-link ${activeSection === link.id ? 'active' : ''}`}
+                  onClick={() => handleNavClick(link.id)}
+                  style={{ '--link-idx': idx }}
+                >
+                  <span className="mobile-link-title">{link.label}</span>
+                  {activeSection === link.id ? (
+                    <span className="mobile-active-chip mono">
+                      <span className="pulse-mini-dot" />
+                      <span>ACTIVE</span>
+                    </span>
+                  ) : (
+                    <span className="mobile-arrow-indicator mono">→</span>
+                  )}
+                </button>
+              ))}
+
+              <div className="mobile-nav-divider" />
+
               <button
-                key={link.id}
                 type="button"
-                className={`mobile-nav-link ${activeSection === link.id ? 'active' : ''}`}
-                onClick={() => handleNavClick(link.id)}
+                className="mobile-nav-cv-btn"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onDownloadCv();
+                }}
               >
-                {link.label}
+                <FileText size={16} />
+                <span>Overview Resume (PDF)</span>
               </button>
-            ))}
-            <button
-              type="button"
-              className="mobile-nav-cv-btn"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onDownloadCv();
-              }}
-            >
-              <Download size={16} />
-              <span>Download CV (PDF)</span>
-            </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </header>
   );
