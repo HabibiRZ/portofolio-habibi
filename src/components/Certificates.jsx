@@ -87,9 +87,12 @@ export default function Certificates() {
         {/* Section Header with Volume Badge */}
         <div className="section-header-row reveal-on-scroll">
           <div>
-            <div className="volume-badge">
-              <span className="dot-sky" />
-              <span>VOLUME III: VERIFIED CREDENTIALS &amp; ACCREDITATIONS</span>
+            <div className="system-layer-badge mono">
+              <span className="layer-bracket">[</span>
+              <span className="layer-num text-amber">LAYER 03</span>
+              <span className="layer-sep">//</span>
+              <span className="layer-name">VERIFIED CREDENTIAL VAULT &amp; ACCREDITATIONS</span>
+              <span className="layer-bracket">]</span>
             </div>
             <h2 className="volume-heading">
               Verified <span className="font-serif-italic text-sky">credentials.</span> <br />

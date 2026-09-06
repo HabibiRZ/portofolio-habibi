@@ -200,9 +200,12 @@ export default function ContactSection({ showToastMessage }) {
       <div className="wrap" style={{ marginTop: '48px' }}>
         {/* Section Heading */}
         <div className="reveal-on-scroll">
-          <div className="volume-badge">
-            <span className="dot-sky" />
-            <span>VOLUME VI: LET'S TALK &amp; DIRECT COLLABORATION</span>
+          <div className="system-layer-badge mono">
+            <span className="layer-bracket">[</span>
+            <span className="layer-num text-sky">LAYER 07</span>
+            <span className="layer-sep">//</span>
+            <span className="layer-name">DIRECT DISPATCH &amp; COLLABORATION</span>
+            <span className="layer-bracket">]</span>
           </div>
 
           <h2 className="volume-heading">

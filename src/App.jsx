@@ -12,7 +12,7 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import Toast from './components/Toast';
 import ResumeModal from './components/ResumeModal';
-import { playSuccessSound } from './utils/soundEffects';
+import { playSuccessSound, playClickSound, playHoverSound } from './utils/soundEffects';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -206,6 +206,27 @@ export default function App() {
       </div>
       <div className="cyber-ambient-glow glow-1" aria-hidden="true" />
       <div className="cyber-ambient-glow glow-2" aria-hidden="true" />
+
+      {/* Signature Obsidian Systems Telemetry Left Dock Capsule */}
+      <aside className="sig-telemetry-dock-pill" aria-label="Availability Status">
+        <a
+          href="#contact"
+          className="sig-telemetry-pill-link mono"
+          onClick={(e) => {
+            e.preventDefault();
+            playClickSound();
+            document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          onMouseEnter={playHoverSound}
+          title="Direct Systems Dispatch // Available for Hire"
+        >
+          <span className="sig-pill-beacon">
+            <span className="sig-pill-beacon-ping" />
+            <span className="sig-pill-beacon-dot" />
+          </span>
+          <span className="sig-pill-text">SYS.AVAILABLE // OPEN FOR HIRE</span>
+        </a>
+      </aside>
 
       {/* HUD Navigation */}
       <Navbar onDownloadCv={handleOpenResume} />

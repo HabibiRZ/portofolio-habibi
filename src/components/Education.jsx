@@ -10,9 +10,12 @@ export default function Education() {
         {/* Section Header */}
         <div className="section-header-row reveal-on-scroll">
           <div>
-            <div className="volume-badge">
-              <span className="dot-sky" />
-              <span>VOLUME V: ACADEMIC BACKGROUND &amp; QUALIFICATIONS</span>
+            <div className="system-layer-badge mono">
+              <span className="layer-bracket">[</span>
+              <span className="layer-num text-amber">LAYER 06</span>
+              <span className="layer-sep">//</span>
+              <span className="layer-name">ACADEMIC FOUNDATIONS &amp; ENGINEERING RIGOR</span>
+              <span className="layer-bracket">]</span>
             </div>
             <h2 className="volume-heading">
               Academic <span className="font-serif-italic text-sky">foundations.</span> <br />

@@ -21,7 +21,7 @@ import {
   FileText
 } from 'lucide-react';
 import { personalData, telemetryStats } from '../data/portfolioData';
-import { playHoverSound, playClickSound, playSuccessSound } from '../utils/soundEffects';
+import { playHoverSound, playClickSound, playSuccessSound, playSwitchSound } from '../utils/soundEffects';
 
 // Custom clean SVG icons for socials to match reference site exactly
 function GithubIcon({ size = 26, className = "" }) {
@@ -53,9 +53,55 @@ function InstagramIcon({ size = 26, className = "" }) {
   );
 }
 
+const flagshipSystems = [
+  {
+    id: "sipabs",
+    sectionId: "work",
+    tag: "FINANCIAL ARCHIVES",
+    name: "SIPABS — Bank Archival Engine",
+    org: "PT. Bank Sumut",
+    accent: "#F59E0B",
+    status: "PRODUCTION ACTIVE",
+    metric: "100% Audit Compliance",
+    metricLabel: "ZERO DATA LOSS SLA",
+    stack: ["PHP 8.x", "MySQL", "Financial Security", "Regression QA"],
+    description: "Production archival and administrative records engine managing digitized customer credit files and regulatory audit trails across regional banking operations.",
+    highlight: "Patched 14 SQL query bottlenecks & established zero-defect regression test suites."
+  },
+  {
+    id: "sertakan",
+    sectionId: "work",
+    tag: "GOVERNMENT ANALYTICS",
+    name: "SERTAKAN — Executive Monitoring",
+    org: "BPJS Ketenagakerjaan",
+    accent: "#06B6D4",
+    status: "INSTITUTIONAL DECREE",
+    metric: "33 Sub-Districts",
+    metricLabel: "MEDAN-WIDE PARTICIPATION",
+    stack: ["Web Systems", "PostgreSQL", "Analytics Dashboard", "REST API"],
+    description: "Centralized analytics platform tracking social security compliance and ASN contribution metrics under formal government decree.",
+    highlight: "Consolidated multi-department participation data into automated executive drill-downs."
+  },
+  {
+    id: "ai-attendance",
+    sectionId: "work",
+    tag: "COMPUTER VISION & AI",
+    name: "Neural Vision Attendance Engine",
+    org: "Universitas Sumatera Utara",
+    accent: "#10B981",
+    status: "99.2% ACCURACY",
+    metric: "120ms Latency",
+    metricLabel: "EDGE FACIAL INFERENCE",
+    stack: ["Python 3.11", "OpenCV", "MediaPipe", "Geofencing"],
+    description: "Deep learning facial vector matching and spatial coordinate geofencing system with real-time anti-spoofing heuristic verification.",
+    highlight: "Eliminates attendance proxy fraud through dual facial landmark triangulation."
+  }
+];
+
 export default function Hero({ onDownloadCv }) {
   const [counts, setCounts] = useState(telemetryStats.map(() => 0));
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [activeSystemTab, setActiveSystemTab] = useState(0);
   const statsRef = useRef(null);
   const animatedRef = useRef(false);
 
@@ -104,138 +150,205 @@ export default function Hero({ onDownloadCv }) {
 
   return (
     <>
-      {/* ── Left Edge Floating Vertical Pill Badge (Syahril Style) ── */}
-      <div className="vertical-opportunity-dock">
-        <a
-          href="#contact"
-          className="vertical-opportunity-pill"
-          onClick={(e) => {
-            e.preventDefault();
-            handleScrollToSection('contact');
-          }}
-          onMouseEnter={playHoverSound}
-          title="Click to get in touch"
-        >
-          <span className="vertical-opportunity-dot" />
-          <span>AVAILABLE FOR OPPORTUNITY</span>
-        </a>
-      </div>
-
-      {/* ── Monumental Brutalist Hero Section ── */}
-      <section className="hero-monumental-section" id="hero">
+      {/* ── Habibi's Signature Systems Command Deck ── */}
+      <section className="hero-signature-section" id="hero">
         <div className="wrap">
-          {/* Headline 1: Micro Intro + FULL STACK + GitHub */}
-          <div className="hero-monumental-top-row reveal-on-scroll">
-            <p className="hero-micro-intro mono">
-              Hi, I'm Habibi Rizqullah. I build scalable systems powered by high-reliability web architecture.
-            </p>
-
-            <div className="hero-monumental-heading-wrap">
-              <div className="hero-floating-social-anchor hero-floating-github">
-                <a
-                  href="https://github.com/HabibiRZ"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="GitHub Profile"
-                  onMouseEnter={playHoverSound}
-                >
-                  <GithubIcon size={28} />
-                </a>
-              </div>
-              <h1 className="hero-monumental-text text-shiny">
-                FULL STACK
-              </h1>
+          {/* Top Telemetry Coordinates */}
+          <div className="hero-sig-telemetry-bar reveal-on-scroll">
+            <div className="sig-telemetry-status mono">
+              <span className="pulse-ping-dot" />
+              <span className="text-white font-bold">HABIBI RIZQULLAH</span>
+              <span className="telemetry-sep">//</span>
+              <span className="text-sky">SYSTEMS &amp; FULL-STACK ARCHITECT</span>
+            </div>
+            <div className="sig-telemetry-meta mono">
+              <span className="inline-flex items-center gap-1">
+                <MapPin size={13} className="text-amber" />
+                <span>MEDAN, ID • WIB (UTC+7)</span>
+              </span>
+              <span className="telemetry-sep">•</span>
+              <span className="text-emerald font-semibold">USU ALUMNI (GPA 3.80 HONORS)</span>
             </div>
           </div>
 
-          {/* Headline 2: SOFT + [⚡ Zap] + WARE + LinkedIn & Instagram */}
-          <div className="hero-monumental-heading-wrap reveal-on-scroll delay-1">
-            <div className="hero-floating-social-anchor hero-floating-linkedin">
+          {/* Signature Monumental Headline */}
+          <div className="hero-sig-headline-block reveal-on-scroll delay-1">
+            <h1 className="hero-sig-headline">
+              ENGINEERING HIGH-RELIABILITY <br />
+              <span className="text-gradient-cyan">SYSTEMS</span> &amp;{' '}
+              <span className="text-shiny">WEB ARCHITECTURE.</span>
+            </h1>
+
+            <p className="hero-sig-manifesto">
+              I architect fault-tolerant web platforms, regional banking archives, and computer vision pipelines for organizations where data reliability is critical. Specialized in high-uptime relational databases, regression QA, and scalable full-stack applications.
+            </p>
+          </div>
+
+          {/* Action Command Bar & Social Channels */}
+          <div className="hero-sig-action-bar reveal-on-scroll delay-2">
+            <div className="hero-sig-buttons">
+              <button
+                type="button"
+                className="btn-sig-primary mono"
+                onClick={() => handleScrollToSection('work')}
+                onMouseEnter={playHoverSound}
+              >
+                <span>EXPLORE FLAGSHIP SYSTEMS</span>
+                <ArrowRight size={15} />
+              </button>
+
+              <button
+                type="button"
+                className="btn-sig-secondary mono"
+                onClick={onDownloadCv}
+                onMouseEnter={playHoverSound}
+              >
+                <FileText size={15} />
+                <span>OVERVIEW CV (PDF)</span>
+              </button>
+            </div>
+
+            {/* Integrated Social Station - Logos Only */}
+            <div className="hero-sig-social-dock">
+              <a
+                href="https://github.com/HabibiRZ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="sig-social-link"
+                title="GitHub Profile (HabibiRZ)"
+                aria-label="GitHub Profile"
+                onMouseEnter={playHoverSound}
+                onClick={playClickSound}
+              >
+                <GithubIcon size={19} />
+              </a>
               <a
                 href="https://www.linkedin.com/in/habibi-rizqullah-2b121329a/"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="sig-social-link"
+                title="LinkedIn Profile (Habibi Rizqullah)"
                 aria-label="LinkedIn Profile"
                 onMouseEnter={playHoverSound}
+                onClick={playClickSound}
               >
-                <LinkedinIcon size={28} />
+                <LinkedinIcon size={19} />
               </a>
-            </div>
-            <div className="hero-floating-social-anchor hero-floating-instagram">
               <a
                 href="https://www.instagram.com/habibirz005/"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="sig-social-link"
+                title="Instagram Profile (@habibirz005)"
                 aria-label="Instagram Profile"
                 onMouseEnter={playHoverSound}
+                onClick={playClickSound}
               >
-                <InstagramIcon size={28} />
+                <InstagramIcon size={19} />
               </a>
             </div>
-
-            <h1 className="hero-monumental-text text-shiny">
-              <span>SOFT</span>
-              <span
-                className="hero-icon-slot zap"
-                title="High-Voltage Systems"
-                onMouseEnter={playHoverSound}
-                onClick={() => playClickSound()}
-              >
-                <Zap size={56} strokeWidth={2.4} />
-              </span>
-              <span>WARE</span>
-            </h1>
           </div>
 
-          {/* Headline 3: EN + [🤖 Bot] + GINEER + Right Micro-Copy */}
-          <div className="hero-monumental-sub-row reveal-on-scroll delay-2">
-            <h1 className="hero-monumental-text text-shiny">
-              <span>EN</span>
-              <span
-                className="hero-icon-slot bot"
-                title="System Intelligence"
-                onMouseEnter={playHoverSound}
-                onClick={() => playClickSound()}
-              >
-                <Bot size={56} strokeWidth={2.4} />
-              </span>
-              <span>GINEER</span>
-            </h1>
-
-            <p className="hero-micro-collab mono">
-              Open to all forms of collaboration, regardless of location and language.
-            </p>
-          </div>
-
-          {/* Hero Metadata & Expandable Resume Pill Bar */}
-          <div className="hero-metadata-bar reveal-on-scroll delay-3">
-            <div className="hero-location-badge mono">
-              MEDAN, ID — 2026
-            </div>
-            <div className="hero-meta-divider" />
-            <a
-              href={personalData.cvFile}
-              className="btn-resume-expand"
-              onClick={onDownloadCv}
-              onMouseEnter={playHoverSound}
-              title="View and Download Resume"
-            >
-              <span className="btn-resume-text">View Resume</span>
-              <div className="btn-resume-icon-box">
-                <ArrowDownRight size={22} />
+          {/* Signature Interactive Live Systems Console HUD */}
+          <div className="hero-systems-console-hud reveal-on-scroll delay-3">
+            <div className="console-hud-header">
+              <div className="console-hud-title mono">
+                <Terminal size={14} className="text-sky" />
+                <span>ACTIVE PRODUCTION ENGINES // REALTIME TELEMETRY</span>
               </div>
-            </a>
+
+              <div className="console-hud-tabs mono">
+                {flagshipSystems.map((sys, idx) => (
+                  <button
+                    key={sys.id}
+                    type="button"
+                    className={`console-tab-btn ${activeSystemTab === idx ? 'active' : ''}`}
+                    onClick={() => {
+                      try {
+                        playClickSound();
+                      } catch (err) {
+                        /* ignore audio error */
+                      }
+                      setActiveSystemTab(idx);
+                    }}
+                    onMouseEnter={playHoverSound}
+                    style={{ '--tab-accent': sys.accent }}
+                  >
+                    <span className="console-tab-dot" style={{ background: sys.accent }} />
+                    <span>{`0${idx + 1} // ${sys.org}`}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Console Active System Body */}
+            <div className="console-hud-body" style={{ '--current-accent': flagshipSystems[activeSystemTab].accent }}>
+              <div className="console-hud-left">
+                <div className="console-tag-row mono">
+                  <span className="console-category-pill" style={{ color: flagshipSystems[activeSystemTab].accent }}>
+                    {flagshipSystems[activeSystemTab].tag}
+                  </span>
+                  <span className="console-status-pill mono">
+                    <span className="console-pulse-mini" style={{ background: flagshipSystems[activeSystemTab].accent }} />
+                    <span>{flagshipSystems[activeSystemTab].status}</span>
+                  </span>
+                </div>
+
+                <h3 className="console-system-name">{flagshipSystems[activeSystemTab].name}</h3>
+                <p className="console-system-desc">{flagshipSystems[activeSystemTab].description}</p>
+
+                <div className="console-system-stack mono">
+                  {flagshipSystems[activeSystemTab].stack.map((stk) => (
+                    <span key={stk} className="console-stack-chip">{stk}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="console-hud-right">
+                <div className="console-metric-card">
+                  <div className="console-metric-header">
+                    <div className="console-metric-val mono" style={{ color: flagshipSystems[activeSystemTab].accent }}>
+                      {flagshipSystems[activeSystemTab].metric}
+                    </div>
+                    <span className="console-verified-badge mono">TELEMETRY VERIFIED</span>
+                  </div>
+                  <div className="console-metric-lbl mono">
+                    {flagshipSystems[activeSystemTab].metricLabel}
+                  </div>
+                </div>
+
+                <div className="console-metric-highlight">
+                  <span className="console-highlight-dot" style={{ background: flagshipSystems[activeSystemTab].accent }} />
+                  <p className="console-highlight-quote">
+                    "{flagshipSystems[activeSystemTab].highlight}"
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="console-btn-deep-dive mono"
+                  onClick={() => handleScrollToSection('work')}
+                  onMouseEnter={playHoverSound}
+                >
+                  <span>INSPECT ARCHITECTURE BLUEPRINT</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── Volume I: Identity & Core Narrative ── */}
+      {/* ── Layer 01: Identity & Core Narrative ── */}
       <section className="section-block" id="about">
         <div className="wrap">
           <div className="reveal-on-scroll">
-            <div className="volume-badge">
-              <span className="dot-emerald" />
-              <span>VOLUME I: IDENTITY &amp; CORE FOCUS</span>
+            <div className="system-layer-badge mono">
+              <span className="layer-bracket">[</span>
+              <span className="layer-num text-emerald">LAYER 01</span>
+              <span className="layer-sep">//</span>
+              <span className="layer-name">ARCHITECTURAL IDENTITY &amp; CORE FOCUS</span>
+              <span className="layer-bracket">]</span>
             </div>
 
             <h2 className="volume-heading">

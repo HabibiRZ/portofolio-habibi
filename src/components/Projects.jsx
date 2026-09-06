@@ -100,9 +100,12 @@ export default function Projects() {
         {/* Section Header with Volume Badge */}
         <div className="section-header-row reveal-on-scroll">
           <div>
-            <div className="volume-badge">
-              <span className="dot-sky" />
-              <span>VOLUME II: FLAGSHIP SYSTEMS &amp; PRODUCTION ARCHITECTURE</span>
+            <div className="system-layer-badge mono">
+              <span className="layer-bracket">[</span>
+              <span className="layer-num text-sky">LAYER 02</span>
+              <span className="layer-sep">//</span>
+              <span className="layer-name">PRODUCTION SYSTEMS &amp; ENTERPRISE ARCHITECTURE</span>
+              <span className="layer-bracket">]</span>
             </div>
             <h2 className="volume-heading">
               Proven <span className="font-serif-italic text-sky">systems.</span> <br />

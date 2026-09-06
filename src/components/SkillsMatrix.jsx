@@ -58,9 +58,12 @@ export default function SkillsMatrix() {
         {/* Section Header */}
         <div className="section-header-row reveal-on-scroll">
           <div>
-            <div className="volume-badge">
-              <span className="dot-sky" />
-              <span>VOLUME IV: COMPETENCY MATRIX &amp; TECHNICAL ARSENAL</span>
+            <div className="system-layer-badge mono">
+              <span className="layer-bracket">[</span>
+              <span className="layer-num text-emerald">LAYER 05</span>
+              <span className="layer-sep">//</span>
+              <span className="layer-name">CORE COMPETENCY MATRIX &amp; TECHNICAL ARSENAL</span>
+              <span className="layer-bracket">]</span>
             </div>
             <h2 className="volume-heading">
               Core <span className="font-serif-italic text-sky">capabilities.</span> <br />

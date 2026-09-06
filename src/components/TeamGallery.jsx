@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, MapPin, Calendar, Users, X, ZoomIn, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { 
+  Camera, 
+  MapPin, 
+  Calendar, 
+  Users, 
+  X, 
+  ZoomIn, 
+  ChevronLeft, 
+  ChevronRight, 
+  Sparkles,
+  Maximize2
+} from 'lucide-react';
 import { internshipMoments } from '../data/portfolioData';
 import { playHoverSound, playClickSound, playModalSound, playSwitchSound } from '../utils/soundEffects';
 
@@ -55,7 +66,34 @@ export default function TeamGallery() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activePhotoIndex]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (activePhotoIndex !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activePhotoIndex]);
+
   const activePhoto = activePhotoIndex !== null ? internshipMoments[activePhotoIndex] : null;
+
+  // Helper for Bento spans when viewing all 7 photos
+  const getBentoSpanClass = (index) => {
+    if (activeFilter !== 'all') return '';
+    switch (index) {
+      case 0: return 'bento-span-7'; // Row 1 Left: Wide Lead Showcase (Bank Sumut SIPABS)
+      case 1: return 'bento-span-5'; // Row 1 Right: Balanced Complement
+      case 2: return 'bento-span-4'; // Row 2 Left
+      case 3: return 'bento-span-4'; // Row 2 Center
+      case 4: return 'bento-span-4'; // Row 2 Right
+      case 5: return 'bento-span-5'; // Row 3 Left: Video wrap-up
+      case 6: return 'bento-span-7'; // Row 3 Right: Graduation Day Showcase Finale!
+      default: return 'bento-span-6';
+    }
+  };
 
   return (
     <section className="section-block" id="gallery">
@@ -63,9 +101,12 @@ export default function TeamGallery() {
         {/* Section Header */}
         <div className="section-header-row reveal-on-scroll">
           <div>
-            <div className="volume-badge">
-              <span className="dot-sky" />
-              <span>VISUAL ARCHIVE // FIELD DOCUMENTATION</span>
+            <div className="system-layer-badge mono">
+              <span className="layer-bracket">[</span>
+              <span className="layer-num text-sky">LAYER 04</span>
+              <span className="layer-sep">//</span>
+              <span className="layer-name">FIELD ARCHIVE &amp; INSTITUTIONAL COLLABORATION</span>
+              <span className="layer-bracket">]</span>
             </div>
             <h2 className="volume-heading">
               Visual <span className="font-serif-italic text-sky">archive.</span> <br />
@@ -76,10 +117,11 @@ export default function TeamGallery() {
             </p>
           </div>
 
-          <div className="section-header-note mono">
+          {/* Top Controls: Frame Counter */}
+          <div className="gallery-top-controls mono">
             <span className="live-screens-pill">
               <Camera size={13} className="text-sky" />
-              <span>{internshipMoments.length} ARCHIVAL FRAMES</span>
+              <span>{filteredMoments.length} ARCHIVAL FRAMES</span>
             </span>
           </div>
         </div>
@@ -102,58 +144,58 @@ export default function TeamGallery() {
           ))}
         </div>
 
-        {/* Cinematic Visual Archive Grid */}
-        <div className="archive-grid reveal-on-scroll delay-2">
+        {/* ── Photo-First Curated Bento Mosaic Grid ── */}
+        <div 
+          className={`gallery-mosaic-grid ${activeFilter === 'all' ? 'bento-mode' : 'uniform-mode'} reveal-on-scroll delay-2`}
+        >
           {filteredMoments.map((item, idx) => (
             <div
               key={item.id}
-              className="archive-film-card spotlight-card"
+              className={`gallery-frame-card ${getBentoSpanClass(idx)}`}
               onClick={() => handleOpenPhoto(item)}
               onMouseEnter={playHoverSound}
+              style={{ '--card-accent': item.accent }}
             >
-              {/* Film Log Strip Header */}
-              <div className="archive-film-header">
-                <span>[ARCHIVE // LOG_{String(idx + 1).padStart(2, '0')}]</span>
-                <span>{item.period}</span>
-              </div>
-
-              {/* Archival Photo Stage */}
-              <div className="archive-stage">
+              {/* Image Stage */}
+              <div className="gallery-frame-stage">
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="archive-img"
+                  className="gallery-frame-img"
                   loading="lazy"
                   onError={(e) => {
                     e.target.style.display = 'none';
                   }}
                 />
-                <div className="archive-badge">
-                  {item.tag}
+
+                {/* Film Log Index Badge */}
+                <div className="gallery-frame-tag-top mono">
+                  <span className="log-idx">[LOG_{String(idx + 1).padStart(2, '0')}]</span>
+                  <span className="log-date">{item.period}</span>
                 </div>
 
-                <div className="archive-zoom-hover">
-                  <span className="cert-vault-pill-btn">
-                    <ZoomIn size={14} />
-                    <span>EXPAND FRAME</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Caption & Metadata Panel */}
-              <div className="archive-details">
-                <div className="archive-org-line">
-                  <span style={{ color: item.accent, fontWeight: '700' }}>{item.organization}</span>
-                  <span>•</span>
-                  <span>{item.location}</span>
+                {/* Inspect Overlay on Hover */}
+                <div className="gallery-frame-hover-pill mono">
+                  <Maximize2 size={13} />
+                  <span>EXPAND FRAME</span>
                 </div>
 
-                <h3 className="archive-title">{item.title}</h3>
-                <p className="archive-desc">{item.description}</p>
+                {/* Photo Caption Gradient Overlay */}
+                <div className="gallery-frame-overlay">
+                  <div className="gallery-frame-meta-line mono">
+                    <span className="gallery-org-badge" style={{ color: item.accent }}>
+                      <span className="org-dot" style={{ background: item.accent }} />
+                      <span>{item.tag.split('•')[0].trim()}</span>
+                    </span>
+                    <span className="gallery-location-tag">{item.location}</span>
+                  </div>
 
-                <div className="archive-footer-row">
-                  <span style={{ color: 'var(--color-sky)' }}>ROLE: {item.teamRole}</span>
-                  <span>MEDAN, ID</span>
+                  <h3 className="gallery-frame-title">{item.title}</h3>
+
+                  <div className="gallery-frame-role-row mono">
+                    <span className="gallery-role-label">ROLE: <strong style={{ color: '#ffffff' }}>{item.teamRole}</strong></span>
+                    <span className="gallery-inspect-hint">CLICK TO INSPECT ↗</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -161,46 +203,66 @@ export default function TeamGallery() {
         </div>
       </div>
 
-      {/* Lightbox Modal */}
+      {/* ── High-Fidelity Lightbox Modal ── */}
       {activePhoto && (
         <div className="lightbox-backdrop" onClick={handleClosePhoto} role="dialog" aria-modal="true">
           <div className="lightbox-container" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="lightbox-close-btn"
-              onClick={handleClosePhoto}
-              aria-label="Close photo preview"
-            >
-              <X size={20} />
-            </button>
+            {/* Modal Header */}
+            <div className="lightbox-header-bar mono">
+              <div className="lightbox-header-left">
+                <span className="lightbox-traffic-dot red" onClick={handleClosePhoto} />
+                <span className="lightbox-traffic-dot yellow" />
+                <span className="lightbox-traffic-dot green" />
+                <span className="lightbox-doc-title">
+                  FRAME // {activePhoto.title.toUpperCase()}
+                </span>
+              </div>
+
+              <div className="lightbox-header-right">
+                <span className="lightbox-counter">
+                  {(activePhotoIndex + 1)} / {internshipMoments.length}
+                </span>
+                <button
+                  type="button"
+                  className="lightbox-close-btn"
+                  onClick={handleClosePhoto}
+                  aria-label="Close photo preview"
+                  onMouseEnter={playHoverSound}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
 
             {/* Navigation Arrows on Modal */}
             <button
               type="button"
-              className="cert-modal-nav-arrow prev"
+              className="lightbox-nav-arrow prev"
               onClick={(e) => navigatePhoto(-1, e)}
               aria-label="Previous photo"
               title="Previous (Left Arrow)"
-              style={{ left: '16px' }}
+              onMouseEnter={playHoverSound}
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={22} />
             </button>
 
             <button
               type="button"
-              className="cert-modal-nav-arrow next"
+              className="lightbox-nav-arrow next"
               onClick={(e) => navigatePhoto(1, e)}
               aria-label="Next photo"
               title="Next (Right Arrow)"
-              style={{ right: '16px' }}
+              onMouseEnter={playHoverSound}
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={22} />
             </button>
 
+            {/* Image Box */}
             <div className="lightbox-image-box">
               <img src={activePhoto.image} alt={activePhoto.title} className="lightbox-full-img" />
             </div>
 
+            {/* Details Panel */}
             <div className="lightbox-details">
               <div className="lightbox-meta-strip mono">
                 <span className="lightbox-org-badge" style={{ color: activePhoto.accent, borderColor: activePhoto.accent }}>
@@ -219,8 +281,13 @@ export default function TeamGallery() {
               <p className="lightbox-desc">{activePhoto.description}</p>
 
               <div className="lightbox-footer mono">
-                <span>TEAM ROLE: <strong>{activePhoto.teamRole}</strong></span>
-                <span className="text-dim">USE ARROWS ← → OR ESC TO CLOSE</span>
+                <div className="lightbox-footer-role">
+                  <span className="text-dim">ASSIGNED ROLE:</span>{' '}
+                  <strong style={{ color: activePhoto.accent }}>{activePhoto.teamRole}</strong>
+                </div>
+                <div className="lightbox-keyboard-hint">
+                  NAVIGATE: <kbd>←</kbd> <kbd>→</kbd> • CLOSE: <kbd>ESC</kbd>
+                </div>
               </div>
             </div>
           </div>
