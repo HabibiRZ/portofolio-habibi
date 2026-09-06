@@ -18,7 +18,10 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  ZoomIn
+  ZoomIn,
+  Folder,
+  FolderOpen,
+  FileText
 } from 'lucide-react';
 import { workExperience } from '../data/portfolioData';
 import { playHoverSound, playClickSound, playSwitchSound, playModalSound } from '../utils/soundEffects';
@@ -26,6 +29,7 @@ import ProjectModal from './ProjectModal';
 
 export default function Projects() {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [activeFolderId, setActiveFolderId] = useState('sipabs'); // Default first project open in folder stack
   const [expandedArchId, setExpandedArchId] = useState(null);
   // Track selected screenshot index for each project
   const [activeScreenIndexes, setActiveScreenIndexes] = useState({
@@ -36,6 +40,12 @@ export default function Projects() {
   });
   const [modalState, setModalState] = useState({ isOpen: false, project: null, initialIndex: 0 });
   const [photoViewerState, setPhotoViewerState] = useState({ isOpen: false, project: null, activeIndex: 0 });
+
+  const handleToggleFolder = (projectId, e = null) => {
+    if (e) e.stopPropagation();
+    playSwitchSound();
+    setActiveFolderId((prev) => (prev === projectId ? null : projectId));
+  };
 
   const categories = [
     { id: 'all', label: 'All Systems (4)' },
@@ -112,8 +122,14 @@ export default function Projects() {
     }));
   };
 
-  // Keyboard navigation for photo viewer
+  // Keyboard navigation & body scroll lock for photo viewer
   useEffect(() => {
+    if (photoViewerState.isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.removeProperty('overflow');
+    }
+
     const handleKeyDown = (e) => {
       if (!photoViewerState.isOpen) return;
       if (e.key === 'Escape') {
@@ -125,7 +141,10 @@ export default function Projects() {
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.removeProperty('overflow');
+    };
   }, [photoViewerState.isOpen]);
 
   const toggleArchDrawer = (id, e) => {
@@ -179,8 +198,8 @@ export default function Projects() {
           </div>
         </div>
 
-        {/* Category Filters */}
-        <div className="skills-filter-tabs reveal-on-scroll delay-1" style={{ marginBottom: '32px' }}>
+        {/* Category Filters with spacious bottom margin */}
+        <div className="skills-filter-tabs reveal-on-scroll delay-1" style={{ marginBottom: '56px' }}>
           {categories.map((cat) => (
             <button
               key={cat.id}
@@ -194,9 +213,10 @@ export default function Projects() {
           ))}
         </div>
 
-        {/* Flagship Projects Dual-Panel Deck */}
-        <div className="flagship-projects-wrapper reveal-on-scroll delay-1">
-          {filteredProjects.map((item) => {
+        {/* Flagship Projects Folder Stack Deck */}
+        <div className="flagship-projects-wrapper folder-stack-wrapper reveal-on-scroll delay-1">
+          {filteredProjects.map((item, pIdx) => {
+            const isFolderOpen = activeFolderId === item.id;
             const hasScreens = item.screenshots && item.screenshots.length > 0;
             const currentIdx = activeScreenIndexes[item.id] || 0;
             const currentScreen = hasScreens ? item.screenshots[currentIdx] : null;
@@ -205,171 +225,271 @@ export default function Projects() {
             return (
               <div
                 key={item.id}
-                className="flagship-project-card spotlight-card"
+                className={`flagship-project-card spotlight-card project-folder-card ${isFolderOpen ? 'folder-open' : 'folder-stacked'}`}
                 style={{
                   '--project-accent': item.accentColor,
-                  '--project-glow': `${item.accentColor}25`
+                  '--project-glow': `${item.accentColor}25`,
+                  zIndex: isFolderOpen ? 10 : 4 - pIdx
                 }}
                 onMouseEnter={playHoverSound}
               >
-                <div className="flagship-layout">
-                  {/* Left Column: Control Deck & System Metadata */}
-                  <div className="flagship-deck">
-                    <div className="flagship-deck-header">
-                      <div className="flagship-index-tag">
-                        <span>{item.index} //</span>
-                        <span>{item.type.toUpperCase()}</span>
-                      </div>
-                      <div className="flagship-sector-badge">
-                        <span>{item.period}</span>
-                      </div>
-                    </div>
+                {/* ── Folder Tab Protruding on Top with Project Name ── */}
+                <div className="folder-tab-anchor">
+                  <button
+                    type="button"
+                    className={`folder-head-tab ${isFolderOpen ? 'active' : ''}`}
+                    onClick={(e) => handleToggleFolder(item.id, e)}
+                    onMouseEnter={playHoverSound}
+                    style={{ '--tab-accent': item.accentColor }}
+                    title={isFolderOpen ? "Click to fold file" : "Click to open file dossier"}
+                    aria-expanded={isFolderOpen}
+                  >
+                    <span className="folder-tab-icon-wrap">
+                      {isFolderOpen ? <FolderOpen size={16} /> : <Folder size={16} />}
+                    </span>
+                    <span className="folder-tab-dir mono">DIR_{item.index} //</span>
+                    <span className="folder-tab-title">{item.title}</span>
+                    <span className="folder-tab-tag hide-mobile mono">{item.type}</span>
+                    <span className="folder-tab-state-indicator">
+                      <span className="pulse-ping-dot" style={{ background: item.accentColor }} />
+                      <span className="mono">{isFolderOpen ? 'UNSEALED' : 'STACKED'}</span>
+                    </span>
+                  </button>
+                </div>
 
-                    <h3 className="flagship-title">
-                      {item.title}
-                    </h3>
-
-                    <div className="flagship-org-row">
-                      <span style={{ color: item.accentColor, fontWeight: '700' }}>{item.org}</span>
-                      <span>•</span>
-                      <span>{item.role}</span>
-                      <span>•</span>
-                      <span>{item.teamSize}</span>
-                    </div>
-
-                    <p className="flagship-summary">
-                      {item.summary}
-                    </p>
-
-                    {/* Impact Callout Box */}
-                    <div className="flagship-impact-callout">
-                      <div className="mono" style={{ fontSize: '0.72rem', color: item.accentColor, letterSpacing: '0.1em', marginBottom: '4px' }}>
-                        OUTCOME &amp; LEARNING
-                      </div>
-                      <span className="font-serif-italic">"{item.outcome}"</span>
-                    </div>
-
-                    {/* Tech Stack Chips */}
-                    <div className="flagship-chips-row">
-                      {item.chips.map((chip) => (
-                        <span key={chip} className="flagship-chip">
-                          {chip}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flagship-actions-row">
-                      <button
-                        type="button"
-                        className="flagship-btn-primary"
-                        onClick={(e) => handleOpenModal(item, currentIdx, e)}
-                        onMouseEnter={playHoverSound}
-                      >
-                        <Eye size={15} />
-                        <span>INSPECT PRODUCTION UI</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="flagship-btn-secondary"
-                        onClick={(e) => toggleArchDrawer(item.id, e)}
-                        onMouseEnter={playHoverSound}
-                      >
-                        <Layers size={15} />
-                        <span>{isArchOpen ? 'HIDE ARCHITECTURE' : 'SYSTEM BLUEPRINT'}</span>
-                        {isArchOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                      </button>
-                    </div>
+                {/* ── Folder Top Spine Strip ── */}
+                <div
+                  className="folder-spine-strip"
+                  onClick={() => handleToggleFolder(item.id)}
+                >
+                  <div className="folder-spine-left mono">
+                    <span className="folder-spine-serial">REF-ID: HB-{item.index}-{item.id.toUpperCase()}</span>
+                    <span className="folder-spine-sep">//</span>
+                    <span className="folder-spine-org" style={{ color: item.accentColor }}>{item.org}</span>
+                    <span className="folder-spine-sep hide-mobile">//</span>
+                    <span className="folder-spine-role hide-mobile">{item.role}</span>
                   </div>
-
-                  {/* Right Column: Simulated Browser Viewport Window */}
-                  <div className="flagship-browser-window">
-                    <div className="flagship-browser-bar">
-                      <div className="flagship-traffic-dots">
-                        <span className="traffic-dot red" />
-                        <span className="traffic-dot yellow" />
-                        <span className="traffic-dot green" />
-                      </div>
-                      <div className="flagship-browser-url">
-                        <Lock size={12} className="text-emerald" />
-                        <span>{getSimulatedUrl(item.id)}</span>
-                      </div>
-                      <div className="mono" style={{ fontSize: '0.7rem', color: item.accentColor }}>
-                        AUDITED
-                      </div>
-                    </div>
-
-                    {/* Interactive Stage - Opens Full Overview Picture on Click */}
-                    {hasScreens && currentScreen && (
-                      <div
-                        className="flagship-browser-stage"
-                        onClick={(e) => handleOpenPhotoViewer(item, currentIdx, e)}
-                        title="Click to view full overview picture"
-                      >
-                        <img
-                          src={currentScreen.url}
-                          alt={currentScreen.title}
-                          className="flagship-browser-img"
-                          loading="lazy"
-                        />
-                        <div className="flagship-browser-overlay">
-                          <div className="flagship-stage-caption">{currentScreen.title}</div>
-                          <div className="flagship-stage-tag">{currentScreen.tag} • CLICK FOR FULL PICTURE</div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Thumbnail Switcher Bar */}
-                    {hasScreens && item.screenshots.length > 1 && (
-                      <div className="flagship-thumbs-carousel">
-                        {item.screenshots.map((s, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            className={`flagship-thumb-btn ${currentIdx === idx ? 'active' : ''}`}
-                            onClick={(e) => handleSelectScreen(item.id, idx, e)}
-                            onMouseEnter={playHoverSound}
-                            title={s.title}
-                          >
-                            <img src={s.url} alt={s.title} className="flagship-thumb-img" />
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                  <div className="folder-spine-right">
+                    <button
+                      type="button"
+                      className="folder-toggle-action-btn mono"
+                      onClick={(e) => handleToggleFolder(item.id, e)}
+                      onMouseEnter={playHoverSound}
+                    >
+                      {isFolderOpen ? (
+                        <>
+                          <span>FOLD DOSSIER</span>
+                          <ChevronUp size={14} />
+                        </>
+                      ) : (
+                        <>
+                          <span>OPEN DOSSIER</span>
+                          <FolderOpen size={14} />
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
 
-                {/* Expandable Architecture Blueprint Drawer */}
-                {isArchOpen && item.architecture && (
-                  <div className="flagship-arch-drawer reveal-on-scroll">
-                    <div>
-                      <div className="flagship-arch-title">ARCHITECTURE OVERVIEW</div>
-                      <p style={{ fontSize: '0.92rem', color: 'var(--color-text-muted)', margin: '0 0 12px 0', lineHeight: '1.6' }}>
-                        {item.architecture.overview}
-                      </p>
-                      <div className="flagship-chips-row">
-                        {item.architecture.stack.map((s) => (
-                          <span key={s} className="flagship-chip mono" style={{ background: 'rgba(56, 189, 248, 0.08)', color: '#38bdf8' }}>
-                            {s}
-                          </span>
+                {/* ── Collapsed Stacked File Sleeve (When Folder is Closed/Stacked) ── */}
+                {!isFolderOpen && (
+                  <div
+                    className="folder-stacked-preview"
+                    onClick={() => handleToggleFolder(item.id)}
+                  >
+                    <div className="folder-stacked-info">
+                      <h4 className="folder-stacked-title">{item.title}</h4>
+                      <p className="folder-stacked-summary">{item.summary}</p>
+                      <div className="flagship-chips-row" style={{ marginTop: '10px' }}>
+                        {item.chips.slice(0, 4).map((chip) => (
+                          <span key={chip} className="flagship-chip">{chip}</span>
                         ))}
+                        {item.chips.length > 4 && (
+                          <span className="flagship-chip mono" style={{ opacity: 0.7 }}>
+                            +{item.chips.length - 4} more
+                          </span>
+                        )}
                       </div>
                     </div>
-
-                    <div>
-                      <div className="flagship-arch-title">ENGINEERING HIGHLIGHTS</div>
-                      <ul className="flagship-arch-list mono">
-                        {item.architecture.highlights.map((h, i) => (
-                          <li key={i}>
-                            <CheckCircle2 size={14} className="text-emerald" style={{ flexShrink: 0, marginTop: '3px' }} />
-                            <span>{h}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="folder-stacked-cta">
+                      <span className="folder-stacked-cta-badge mono">
+                        <FolderOpen size={15} />
+                        <span>CLICK TO OPEN FOLDER</span>
+                      </span>
                     </div>
                   </div>
                 )}
+
+                {/* ── Folder Body Expandable (With Opening Animation & Inner Dossier) ── */}
+                <div className={`folder-body-collapse ${isFolderOpen ? 'open' : ''}`}>
+                  <div className="folder-body-inner">
+                    <div className="folder-dossier-paper">
+                      <div className="folder-paper-stamp mono">
+                        <span>HABIBI RIZQULLAH // PRODUCTION SYSTEM DOSSIER</span>
+                        <span className="stamp-id">SECURITY LEVEL: AUDITED PUBLIC RECORD</span>
+                      </div>
+
+                      <div className="flagship-layout">
+                        {/* Left Column: Control Deck & System Metadata */}
+                        <div className="flagship-deck">
+                          <div className="flagship-deck-header">
+                            <div className="flagship-index-tag">
+                              <span>{item.index} //</span>
+                              <span>{item.type.toUpperCase()}</span>
+                            </div>
+                            <div className="flagship-sector-badge">
+                              <span>{item.period}</span>
+                            </div>
+                          </div>
+
+                          <h3 className="flagship-title">
+                            {item.title}
+                          </h3>
+
+                          <div className="flagship-org-row">
+                            <span style={{ color: item.accentColor, fontWeight: '700' }}>{item.org}</span>
+                            <span>•</span>
+                            <span>{item.role}</span>
+                            <span>•</span>
+                            <span>{item.teamSize}</span>
+                          </div>
+
+                          <p className="flagship-summary">
+                            {item.summary}
+                          </p>
+
+                          {/* Impact Callout Box */}
+                          <div className="flagship-impact-callout">
+                            <div className="mono" style={{ fontSize: '0.72rem', color: item.accentColor, letterSpacing: '0.1em', marginBottom: '4px' }}>
+                              OUTCOME &amp; LEARNING
+                            </div>
+                            <span className="font-serif-italic">"{item.outcome}"</span>
+                          </div>
+
+                          {/* Tech Stack Chips */}
+                          <div className="flagship-chips-row">
+                            {item.chips.map((chip) => (
+                              <span key={chip} className="flagship-chip">
+                                {chip}
+                              </span>
+                            ))}
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flagship-actions-row">
+                            <button
+                              type="button"
+                              className="flagship-btn-primary"
+                              onClick={(e) => handleOpenModal(item, currentIdx, e)}
+                              onMouseEnter={playHoverSound}
+                            >
+                              <Eye size={15} />
+                              <span>INSPECT PRODUCTION UI</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              className="flagship-btn-secondary"
+                              onClick={(e) => toggleArchDrawer(item.id, e)}
+                              onMouseEnter={playHoverSound}
+                            >
+                              <Layers size={15} />
+                              <span>{isArchOpen ? 'HIDE ARCHITECTURE' : 'SYSTEM BLUEPRINT'}</span>
+                              {isArchOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Right Column: Simulated Browser Viewport Window */}
+                        <div className="flagship-browser-window">
+                          <div className="flagship-browser-bar">
+                            <div className="flagship-traffic-dots">
+                              <span className="traffic-dot red" />
+                              <span className="traffic-dot yellow" />
+                              <span className="traffic-dot green" />
+                            </div>
+                            <div className="flagship-browser-url">
+                              <Lock size={12} className="text-emerald" />
+                              <span>{getSimulatedUrl(item.id)}</span>
+                            </div>
+                            <div className="mono" style={{ fontSize: '0.7rem', color: item.accentColor }}>
+                              AUDITED
+                            </div>
+                          </div>
+
+                          {/* Interactive Stage - Opens Full Overview Picture on Click */}
+                          {hasScreens && currentScreen && (
+                            <div
+                              className="flagship-browser-stage"
+                              onClick={(e) => handleOpenPhotoViewer(item, currentIdx, e)}
+                              title="Click to view full overview picture"
+                            >
+                              <img
+                                src={currentScreen.url}
+                                alt={currentScreen.title}
+                                className="flagship-browser-img"
+                                loading="lazy"
+                              />
+                              <div className="flagship-browser-overlay">
+                                <div className="flagship-stage-caption">{currentScreen.title}</div>
+                                <div className="flagship-stage-tag">{currentScreen.tag} • CLICK FOR FULL PICTURE</div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Thumbnail Switcher Bar */}
+                          {hasScreens && item.screenshots.length > 1 && (
+                            <div className="flagship-thumbs-carousel">
+                              {item.screenshots.map((s, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  className={`flagship-thumb-btn ${currentIdx === idx ? 'active' : ''}`}
+                                  onClick={(e) => handleSelectScreen(item.id, idx, e)}
+                                  onMouseEnter={playHoverSound}
+                                  title={s.title}
+                                >
+                                  <img src={s.url} alt={s.title} className="flagship-thumb-img" />
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Expandable Architecture Blueprint Drawer */}
+                      {isArchOpen && item.architecture && (
+                        <div className="flagship-arch-drawer reveal-on-scroll">
+                          <div>
+                            <div className="flagship-arch-title">ARCHITECTURE OVERVIEW</div>
+                            <p style={{ fontSize: '0.92rem', color: 'var(--color-text-muted)', margin: '0 0 12px 0', lineHeight: '1.6' }}>
+                              {item.architecture.overview}
+                            </p>
+                            <div className="flagship-chips-row">
+                              {item.architecture.stack.map((s) => (
+                                <span key={s} className="flagship-chip mono" style={{ background: 'rgba(56, 189, 248, 0.08)', color: '#38bdf8' }}>
+                                  {s}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div>
+                            <div className="flagship-arch-title">ENGINEERING HIGHLIGHTS</div>
+                            <ul className="flagship-arch-list mono">
+                              {item.architecture.highlights.map((h, i) => (
+                                <li key={i}>
+                                  <CheckCircle2 size={14} className="text-emerald" style={{ flexShrink: 0, marginTop: '3px' }} />
+                                  <span>{h}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             );
           })}
