@@ -14,13 +14,36 @@ import {
   Camera,
   Info,
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  Lock,
+  ArrowRight,
+  Terminal
 } from 'lucide-react';
 import { playHoverSound, playClickSound, playSwitchSound } from '../utils/soundEffects';
+
+function getSimulatedUrl(id) {
+  switch (id) {
+    case 'sipabs':
+      return 'https://internal.banksumut.co.id/sipabs/v2/ledger';
+    case 'bpjs-dashboard':
+      return 'https://sertakan.bpjsketenagakerjaan.go.id/monitoring';
+    case 'disdukcapil':
+      return 'https://disdukcapil.medan.go.id/pelayanan/antrian';
+    case 'ai-attendance':
+      return 'https://vision.usu.ac.id/attendance/biometrics';
+    default:
+      return 'https://production.internal/system/audit';
+  }
+}
 
 export default function ProjectModal({ project, initialImageIndex = 0, onClose }) {
   const [activeImageIdx, setActiveImageIdx] = useState(initialImageIndex);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  // Sync initial index if prop changes
+  useEffect(() => {
+    setActiveImageIdx(initialImageIndex);
+  }, [initialImageIndex]);
 
   const hasScreenshots = project?.screenshots && project.screenshots.length > 0;
   const currentScreenshot = hasScreenshots ? project.screenshots[activeImageIdx] : null;
@@ -43,6 +66,14 @@ export default function ProjectModal({ project, initialImageIndex = 0, onClose }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isLightboxOpen, activeImageIdx, hasScreenshots, onClose]);
+
+  // Prevent body scrolling while modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   const handleNextImage = (e) => {
     if (e) e.stopPropagation();
@@ -69,204 +100,233 @@ export default function ProjectModal({ project, initialImageIndex = 0, onClose }
   return (
     <>
       <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-        <div className="modal-container spotlight-modal" onClick={(e) => e.stopPropagation()}>
-          {/* Modal Header */}
-          <div className="modal-header">
-            <div className="modal-header-meta">
-              <span className="modal-index mono">{project.index}</span>
-              <span
-                className="modal-badge mono"
-                style={{ borderColor: project.accentColor, color: project.accentColor }}
+        <div className="modal-container executive-inspection-modal" onClick={(e) => e.stopPropagation()}>
+          {/* Executive Window Chrome Bar */}
+          <div className="modal-chrome-bar">
+            <div className="modal-traffic-controls">
+              <span className="window-dot red" onClick={onClose} title="Close inspection" />
+              <span className="window-dot yellow" />
+              <span className="window-dot green" />
+            </div>
+
+            <div className="modal-url-telemetry mono">
+              <Lock size={12} className="text-emerald" />
+              <span className="modal-url-text">{getSimulatedUrl(project.id)}</span>
+            </div>
+
+            <div className="modal-chrome-actions">
+              <span className="modal-badge-system mono" style={{ color: project.accentColor, borderColor: `${project.accentColor}40` }}>
+                {project.type || 'ENTERPRISE SYSTEM'}
+              </span>
+              <button
+                type="button"
+                className="modal-close-btn-executive"
+                onClick={onClose}
+                aria-label="Close modal"
+                onMouseEnter={playHoverSound}
               >
-                {project.type}
-              </span>
-              {hasScreenshots && (
-                <span className="modal-screen-count mono">
-                  <Camera size={13} className="text-emerald" />
-                  <span>{project.screenshots.length} Screenshots</span>
+                <X size={18} />
+              </button>
+            </div>
+          </div>
+
+          {/* Modal Header Dossier Info */}
+          <div className="modal-dossier-header">
+            <div className="modal-header-left-block">
+              <div className="modal-id-pill mono">
+                <span>SYSTEM BLUEPRINT // {project.index || '01'}</span>
+                {hasScreenshots && (
+                  <>
+                    <span className="sep">•</span>
+                    <span className="text-emerald font-semibold">{project.screenshots.length} PRODUCTION CAPTURES</span>
+                  </>
+                )}
+              </div>
+              <h2 className="modal-title-executive">{project.title}</h2>
+              <div className="modal-meta-strip mono">
+                <span className="meta-org-item">
+                  <Building2 size={14} className="text-sky" />
+                  <span>{project.org}</span>
                 </span>
-              )}
-            </div>
-            <button
-              type="button"
-              className="modal-close-btn"
-              onClick={onClose}
-              aria-label="Close modal"
-              onMouseEnter={playHoverSound}
-            >
-              <X size={20} />
-            </button>
-          </div>
-
-          {/* Modal Title & Org */}
-          <div className="modal-title-block">
-            <h2 className="modal-title">{project.title}</h2>
-            <div className="modal-org-strip mono">
-              <span className="inline-flex items-center gap-1">
-                <Building2 size={14} className="text-emerald" />
-                {project.org}
-              </span>
-              <span className="sep">•</span>
-              <span className="inline-flex items-center gap-1">
-                <Calendar size={14} />
-                {project.period}
-              </span>
-              <span className="sep">•</span>
-              <span className="inline-flex items-center gap-1">
-                <Users size={14} />
-                {project.teamSize}
-              </span>
+                <span className="sep">•</span>
+                <span className="meta-org-item">
+                  <Calendar size={14} className="text-dim" />
+                  <span>{project.period}</span>
+                </span>
+                <span className="sep">•</span>
+                <span className="meta-org-item">
+                  <Users size={14} className="text-dim" />
+                  <span>{project.teamSize}</span>
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Modal Body */}
-          <div className="modal-body">
-            {/* Interactive Production Screenshot Walkthrough */}
+          {/* Modal Scrollable Body */}
+          <div className="modal-body-executive">
+            {/* ── Section 1: Crisp Production UI Stage ── */}
             {hasScreenshots && currentScreenshot && (
-              <div className="modal-gallery-section">
-                <div className="gallery-section-header mono">
-                  <div className="gallery-header-left">
-                    <Sparkles size={15} className="text-emerald" />
-                    <span>PRODUCTION SYSTEM CAPTURES</span>
+              <div className="modal-stage-wrapper">
+                {/* Stage Header Info */}
+                <div className="modal-stage-toolbar mono">
+                  <div className="stage-toolbar-left">
+                    <Terminal size={14} className="text-sky" />
+                    <span className="stage-title-bold">{currentScreenshot.title}</span>
+                    <span className="stage-tag-badge">{currentScreenshot.tag}</span>
                   </div>
-                  <div className="gallery-header-right">
-                    <span className="gallery-counter-tag">
-                      {String(activeImageIdx + 1).padStart(2, '0')} / {String(project.screenshots.length).padStart(2, '0')}
+
+                  <div className="stage-toolbar-right">
+                    <span className="stage-counter-chip">
+                      FRAME {String(activeImageIdx + 1).padStart(2, '0')} / {String(project.screenshots.length).padStart(2, '0')}
                     </span>
-                  </div>
-                </div>
-
-                {/* Main Image Display Box */}
-                <div className="modal-main-display-frame">
-                  <div className="modal-image-viewport">
-                    <img
-                      key={currentScreenshot.url}
-                      src={currentScreenshot.url}
-                      alt={currentScreenshot.title}
-                      className="modal-featured-image"
-                      onClick={() => setIsLightboxOpen(true)}
-                    />
-
-                    {/* Cyber Scan Effect */}
-                    <div className="cyber-scanner-line" />
-
-                    {/* Lightbox / Zoom Action Overlay */}
                     <button
                       type="button"
-                      className="modal-zoom-btn mono"
+                      className="stage-zoom-btn"
                       onClick={() => setIsLightboxOpen(true)}
                       onMouseEnter={playHoverSound}
-                      title="Open full resolution inspection"
+                      title="Inspect full resolution"
                     >
-                      <ZoomIn size={15} />
-                      <span>Full Resolution</span>
+                      <ZoomIn size={14} />
+                      <span>EXPAND VIEW</span>
                     </button>
-
-                    {/* Navigation Buttons */}
-                    {project.screenshots.length > 1 && (
-                      <>
-                        <button
-                          type="button"
-                          className="gallery-nav-arrow arrow-left"
-                          onClick={handlePrevImage}
-                          aria-label="Previous screenshot"
-                          onMouseEnter={playHoverSound}
-                        >
-                          <ChevronLeft size={22} />
-                        </button>
-                        <button
-                          type="button"
-                          className="gallery-nav-arrow arrow-right"
-                          onClick={handleNextImage}
-                          aria-label="Next screenshot"
-                          onMouseEnter={playHoverSound}
-                        >
-                          <ChevronRight size={22} />
-                        </button>
-                      </>
-                    )}
                   </div>
+                </div>
 
-                  {/* Active Caption Details */}
-                  <div className="modal-image-caption-panel">
-                    <div className="caption-meta-row">
-                      <h4 className="caption-title">{currentScreenshot.title}</h4>
-                      <span className="caption-tag-pill mono">{currentScreenshot.tag}</span>
-                    </div>
-                    <p className="caption-description">{currentScreenshot.description}</p>
-                  </div>
+                {/* Primary High-Resolution Screenshot Canvas (No Laser Line) */}
+                <div className="modal-viewport-canvas" onClick={() => setIsLightboxOpen(true)}>
+                  <img
+                    key={currentScreenshot.url}
+                    src={currentScreenshot.url}
+                    alt={currentScreenshot.title}
+                    className="modal-screen-img"
+                    loading="eager"
+                  />
 
-                  {/* Interactive Thumbnail Filmstrip */}
+                  {/* Gentle Floating Navigation Chevrons */}
                   {project.screenshots.length > 1 && (
-                    <div className="modal-thumbnails-strip">
-                      {project.screenshots.map((screen, idx) => {
-                        const isActive = idx === activeImageIdx;
-                        return (
-                          <button
-                            key={screen.url}
-                            type="button"
-                            className={`modal-thumb-btn ${isActive ? 'active' : ''}`}
-                            onClick={(e) => handleSelectImage(idx, e)}
-                            onMouseEnter={playHoverSound}
-                            title={screen.title}
-                          >
-                            <img src={screen.url} alt={screen.title} className="modal-thumb-img" />
-                            <span className="thumb-idx-badge mono">{idx + 1}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <>
+                      <button
+                        type="button"
+                        className="modal-canvas-nav prev"
+                        onClick={handlePrevImage}
+                        aria-label="Previous capture"
+                        onMouseEnter={playHoverSound}
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button
+                        type="button"
+                        className="modal-canvas-nav next"
+                        onClick={handleNextImage}
+                        aria-label="Next capture"
+                        onMouseEnter={playHoverSound}
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    </>
                   )}
                 </div>
+
+                {/* Filmstrip Thumbnail Switcher */}
+                {project.screenshots.length > 1 && (
+                  <div className="modal-thumb-filmstrip">
+                    {project.screenshots.map((screen, idx) => {
+                      const isActive = idx === activeImageIdx;
+                      return (
+                        <button
+                          key={screen.url}
+                          type="button"
+                          className={`modal-filmstrip-item ${isActive ? 'active' : ''}`}
+                          onClick={(e) => handleSelectImage(idx, e)}
+                          onMouseEnter={playHoverSound}
+                          title={screen.title}
+                        >
+                          <img src={screen.url} alt={screen.title} className="modal-filmstrip-img" />
+                          <div className="modal-filmstrip-label mono">
+                            <span>0{idx + 1}</span>
+                            <span className="filmstrip-name">{screen.title}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Architecture Overview */}
-            <div className="modal-section">
-              <div className="modal-section-title mono">
-                <Layers size={16} className="text-emerald" />
-                <span>SYSTEM ARCHITECTURE &amp; OVERVIEW</span>
-              </div>
-              <p className="modal-desc">{project.architecture?.overview || project.summary}</p>
-            </div>
+            {/* ── Section 2: 2-Column Architectural Dossier Deck ── */}
+            <div className="modal-dossier-grid">
+              {/* Left Column: Screen Context & Impact */}
+              <div className="modal-dossier-col left">
+                {currentScreenshot?.description && (
+                  <div className="dossier-card">
+                    <div className="dossier-card-title mono">
+                      <Sparkles size={14} className="text-sky" />
+                      <span>WORKFLOW &amp; OPERATIONAL CONTEXT</span>
+                    </div>
+                    <p className="dossier-card-text">
+                      {currentScreenshot.description}
+                    </p>
+                  </div>
+                )}
 
-            {/* Key Engineering Highlights */}
-            {project.architecture?.highlights && (
-              <div className="modal-section">
-                <div className="modal-section-title mono">
-                  <CheckCircle size={16} className="text-cyan" />
-                  <span>TECHNICAL HIGHLIGHTS &amp; DELIVERABLES</span>
+                <div className="dossier-card outcome-highlight">
+                  <div className="dossier-card-title mono text-emerald">
+                    <ShieldCheck size={15} />
+                    <span>PRODUCTION OUTCOME &amp; SLA</span>
+                  </div>
+                  <p className="dossier-outcome-quote">
+                    "{project.outcome}"
+                  </p>
                 </div>
-                <ul className="modal-highlights-list">
-                  {project.architecture.highlights.map((h, i) => (
-                    <li key={i} className="highlight-item">
-                      <span className="highlight-bullet mono">0{i + 1}</span>
-                      <span>{h}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
-            )}
 
-            {/* Tech Stack */}
-            <div className="modal-section">
-              <div className="modal-section-title mono">
-                <Cpu size={16} className="text-amber" />
-                <span>PRODUCTION TECHNOLOGY STACK</span>
-              </div>
-              <div className="modal-tech-chips">
-                {(project.architecture?.stack || project.chips).map((tech) => (
-                  <span key={tech} className="tech-chip mono">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
+              {/* Right Column: Architecture Blueprint & Technical Highlights */}
+              <div className="modal-dossier-col right">
+                {/* Architecture Overview */}
+                <div className="dossier-card">
+                  <div className="dossier-card-title mono">
+                    <Layers size={14} className="text-sky" />
+                    <span>SYSTEM ARCHITECTURE OVERVIEW</span>
+                  </div>
+                  <p className="dossier-card-text">
+                    {project.architecture?.overview || project.summary}
+                  </p>
+                </div>
 
-            {/* Key Takeaway Outcome */}
-            <div className="modal-outcome-box">
-              <span className="modal-outcome-label mono">CORE TAKEAWAY //</span>
-              <p className="modal-outcome-text">"{project.outcome}"</p>
+                {/* Highlights List */}
+                {project.architecture?.highlights && (
+                  <div className="dossier-card">
+                    <div className="dossier-card-title mono">
+                      <CheckCircle size={14} className="text-emerald" />
+                      <span>ENGINEERING DELIVERABLES &amp; RIGOR</span>
+                    </div>
+                    <ul className="dossier-highlights-list">
+                      {project.architecture.highlights.map((h, i) => (
+                        <li key={i}>
+                          <span className="highlight-num mono">0{i + 1}</span>
+                          <span>{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Tech Chips */}
+                <div className="dossier-card">
+                  <div className="dossier-card-title mono">
+                    <Cpu size={14} className="text-amber" />
+                    <span>VERIFIED PRODUCTION STACK</span>
+                  </div>
+                  <div className="modal-stack-chips mono">
+                    {(project.architecture?.stack || project.chips).map((tech) => (
+                      <span key={tech} className="modal-stack-chip">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

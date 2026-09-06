@@ -467,13 +467,22 @@ export default function Hero({ onDownloadCv }) {
 
                 <button
                   type="button"
-                  className="flagship-btn-secondary"
+                  className={`flagship-btn-secondary btn-copy-email ${copiedEmail ? 'copied' : ''}`}
                   onClick={handleCopyEmail}
                   onMouseEnter={playHoverSound}
-                  title="Copy Email Address"
+                  title={copiedEmail ? 'Email Copied to Clipboard!' : 'Copy Email Address to Clipboard'}
                 >
-                  <Mail size={14} className="text-sky" />
-                  <span>{copiedEmail ? 'COPIED TO CLIPBOARD' : 'COPY INBOX'}</span>
+                  {copiedEmail ? (
+                    <>
+                      <Check size={14} className="text-emerald copy-animate-icon" />
+                      <span className="copy-label-text">EMAIL COPIED</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mail size={14} className="text-sky copy-animate-icon" />
+                      <span className="copy-label-text">COPY EMAIL</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>

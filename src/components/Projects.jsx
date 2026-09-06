@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChevronDown,
   ChevronUp,
@@ -14,7 +14,11 @@ import {
   Database,
   Shield,
   Activity,
-  Maximize2
+  Maximize2,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn
 } from 'lucide-react';
 import { workExperience } from '../data/portfolioData';
 import { playHoverSound, playClickSound, playSwitchSound, playModalSound } from '../utils/soundEffects';
@@ -31,6 +35,7 @@ export default function Projects() {
     'ai-attendance': 0
   });
   const [modalState, setModalState] = useState({ isOpen: false, project: null, initialIndex: 0 });
+  const [photoViewerState, setPhotoViewerState] = useState({ isOpen: false, project: null, activeIndex: 0 });
 
   const categories = [
     { id: 'all', label: 'All Systems (4)' },
@@ -71,6 +76,57 @@ export default function Projects() {
     playClickSound();
     setModalState({ isOpen: false, project: null, initialIndex: 0 });
   };
+
+  // Full Overview Picture Viewer (When pressing project images)
+  const handleOpenPhotoViewer = (project, screenIndex = 0, e = null) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    playModalSound();
+    setPhotoViewerState({ isOpen: true, project, activeIndex: screenIndex });
+  };
+
+  const handleClosePhotoViewer = () => {
+    playClickSound();
+    setPhotoViewerState({ isOpen: false, project: null, activeIndex: 0 });
+  };
+
+  const handleNextPhoto = (e = null) => {
+    if (e) e.stopPropagation();
+    if (!photoViewerState.project?.screenshots?.length) return;
+    playSwitchSound();
+    setPhotoViewerState((prev) => ({
+      ...prev,
+      activeIndex: (prev.activeIndex + 1) % prev.project.screenshots.length
+    }));
+  };
+
+  const handlePrevPhoto = (e = null) => {
+    if (e) e.stopPropagation();
+    if (!photoViewerState.project?.screenshots?.length) return;
+    playSwitchSound();
+    setPhotoViewerState((prev) => ({
+      ...prev,
+      activeIndex: (prev.activeIndex - 1 + prev.project.screenshots.length) % prev.project.screenshots.length
+    }));
+  };
+
+  // Keyboard navigation for photo viewer
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!photoViewerState.isOpen) return;
+      if (e.key === 'Escape') {
+        handleClosePhotoViewer();
+      } else if (e.key === 'ArrowRight') {
+        handleNextPhoto();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrevPhoto();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [photoViewerState.isOpen]);
 
   const toggleArchDrawer = (id, e) => {
     e.stopPropagation();
@@ -244,12 +300,12 @@ export default function Projects() {
                       </div>
                     </div>
 
-                    {/* Interactive Stage */}
+                    {/* Interactive Stage - Opens Full Overview Picture on Click */}
                     {hasScreens && currentScreen && (
                       <div
                         className="flagship-browser-stage"
-                        onClick={(e) => handleOpenModal(item, currentIdx, e)}
-                        title="Click to view full inspection"
+                        onClick={(e) => handleOpenPhotoViewer(item, currentIdx, e)}
+                        title="Click to view full overview picture"
                       >
                         <img
                           src={currentScreen.url}
@@ -259,7 +315,7 @@ export default function Projects() {
                         />
                         <div className="flagship-browser-overlay">
                           <div className="flagship-stage-caption">{currentScreen.title}</div>
-                          <div className="flagship-stage-tag">{currentScreen.tag} • CLICK TO ENLARGE</div>
+                          <div className="flagship-stage-tag">{currentScreen.tag} • CLICK FOR FULL PICTURE</div>
                         </div>
                       </div>
                     )}
@@ -320,13 +376,87 @@ export default function Projects() {
         </div>
       </div>
 
-      {/* Full Detailed Inspection Modal */}
+      {/* Full Detailed Inspection Modal (Opened only by 'INSPECT PRODUCTION UI' button) */}
       <ProjectModal
         isOpen={modalState.isOpen}
         project={modalState.project}
         initialIndex={modalState.initialIndex}
         onClose={handleCloseModal}
       />
+
+      {/* Fullscreen Picture Overview Lightbox (Opened when clicking project images) */}
+      {photoViewerState.isOpen && photoViewerState.project?.screenshots && (
+        <div
+          className="fullscreen-lightbox-backdrop"
+          onClick={handleClosePhotoViewer}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="lightbox-content-box" onClick={(e) => e.stopPropagation()}>
+            <div className="lightbox-top-bar">
+              <div className="lightbox-title-wrap mono">
+                <span className="lightbox-count">
+                  {String(photoViewerState.activeIndex + 1).padStart(2, '0')} / {String(photoViewerState.project.screenshots.length).padStart(2, '0')}
+                </span>
+                <span className="sep">•</span>
+                <span className="lightbox-title">
+                  {photoViewerState.project.screenshots[photoViewerState.activeIndex]?.title}
+                </span>
+                <span className="sep">•</span>
+                <span className="text-sky font-semibold">
+                  {photoViewerState.project.org}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="lightbox-close-btn"
+                onClick={handleClosePhotoViewer}
+                aria-label="Close picture overview"
+                onMouseEnter={playHoverSound}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="lightbox-image-wrap">
+              <img
+                src={photoViewerState.project.screenshots[photoViewerState.activeIndex]?.url}
+                alt={photoViewerState.project.screenshots[photoViewerState.activeIndex]?.title}
+                className="lightbox-full-img"
+              />
+
+              {photoViewerState.project.screenshots.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    className="lightbox-nav-btn prev"
+                    onClick={handlePrevPhoto}
+                    aria-label="Previous capture"
+                    onMouseEnter={playHoverSound}
+                  >
+                    <ChevronLeft size={28} />
+                  </button>
+                  <button
+                    type="button"
+                    className="lightbox-nav-btn next"
+                    onClick={handleNextPhoto}
+                    aria-label="Next capture"
+                    onMouseEnter={playHoverSound}
+                  >
+                    <ChevronRight size={28} />
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div className="lightbox-bottom-bar">
+              <p className="lightbox-desc">
+                {photoViewerState.project.screenshots[photoViewerState.activeIndex]?.description}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

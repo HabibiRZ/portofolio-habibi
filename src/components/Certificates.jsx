@@ -81,6 +81,18 @@ export default function Certificates() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedCert]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (selectedCert) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedCert]);
+
   return (
     <section className="section-block certificates-section" id="certificates">
       <div className="wrap">
@@ -154,7 +166,14 @@ export default function Certificates() {
               </div>
 
               {/* Certificate Preview Frame with Zoom Overlay */}
-              <div className="cert-vault-preview-stage">
+              <div
+                className="cert-vault-preview-stage"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenCert(cert);
+                }}
+                title="Click to inspect credential"
+              >
                 <img
                   src={cert.image}
                   alt={cert.title}
@@ -162,10 +181,17 @@ export default function Certificates() {
                   loading="lazy"
                 />
                 <div className="cert-vault-inspect-overlay">
-                  <span className="cert-vault-pill-btn">
+                  <button
+                    type="button"
+                    className="cert-vault-pill-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenCert(cert);
+                    }}
+                  >
                     <ZoomIn size={14} />
                     <span>INSPECT CREDENTIAL</span>
-                  </span>
+                  </button>
                 </div>
               </div>
 

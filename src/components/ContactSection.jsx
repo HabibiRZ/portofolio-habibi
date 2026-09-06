@@ -501,63 +501,39 @@ export default function ContactSection({ showToastMessage }) {
             Technical Alignment &amp; Operations FAQ
           </h3>
 
-          <div className="faq-list-accordion" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="faq-list-accordion">
             {faqData.map((faq, idx) => {
               const isOpen = openFaqIndex === idx;
               return (
                 <div
                   key={idx}
-                  style={{
-                    background: isOpen ? 'rgba(25, 25, 36, 0.8)' : 'rgba(16, 16, 24, 0.65)',
-                    border: isOpen ? '1px solid rgba(56, 189, 248, 0.35)' : '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '14px',
-                    overflow: 'hidden',
-                    transition: 'all 0.3s ease'
-                  }}
+                  className={`faq-item-card ${isOpen ? 'open' : ''}`}
                 >
                   <button
                     type="button"
+                    className="faq-question-btn"
                     onClick={() => toggleFaq(idx)}
                     onMouseEnter={playHoverSound}
-                    style={{
-                      width: '100%',
-                      padding: '20px 24px',
-                      background: 'transparent',
-                      border: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      color: isOpen ? '#ffffff' : 'var(--color-text)'
-                    }}
+                    aria-expanded={isOpen}
                   >
-                    <span style={{ fontSize: '1.02rem', fontWeight: '700', letterSpacing: '-0.01em' }}>
+                    <span className="faq-question-text">
                       {faq.q}
                     </span>
-                    <ChevronDown
-                      size={18}
-                      className="text-sky"
-                      style={{
-                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.3s ease',
-                        flexShrink: 0,
-                        marginLeft: '16px'
-                      }}
-                    />
+                    <span className="faq-chevron-wrap">
+                      <ChevronDown
+                        size={18}
+                        className="text-sky faq-chevron-icon"
+                      />
+                    </span>
                   </button>
 
-                  {isOpen && (
-                    <div style={{
-                      padding: '0 24px 22px',
-                      color: 'var(--color-text-muted)',
-                      fontSize: '0.94rem',
-                      lineHeight: '1.7',
-                      borderTop: '1px solid rgba(255, 255, 255, 0.05)'
-                    }}>
-                      <p style={{ margin: '14px 0 0' }}>{faq.a}</p>
+                  <div className={`faq-answer-collapse ${isOpen ? 'open' : ''}`}>
+                    <div className="faq-answer-inner">
+                      <div className="faq-answer-content">
+                        <p>{faq.a}</p>
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}
