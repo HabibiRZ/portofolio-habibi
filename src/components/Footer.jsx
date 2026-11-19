@@ -24,7 +24,7 @@ export default function Footer({ onOpenCommandPalette }) {
   };
 
   return (
-    <footer className="footer-main" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', background: '#07070b', padding: '48px 0 36px' }}>
+    <footer className="footer-main" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', background: 'var(--color-bg-secondary)', padding: '52px 0 38px' }}>
       <div className="wrap">
         <div className="footer-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '24px' }}>
           <div className="footer-left">

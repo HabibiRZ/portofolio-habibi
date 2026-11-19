@@ -357,7 +357,7 @@ export default function ContactSection({ showToastMessage }) {
                       background: 'rgba(255,255,255,0.04)',
                       border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: '6px',
-                      color: '#cbd5e1',
+                      color: '#d6d0c4',
                       fontSize: '0.74rem',
                       textDecoration: 'none',
                       transition: 'all 0.2s ease'
@@ -380,7 +380,7 @@ export default function ContactSection({ showToastMessage }) {
                       background: 'rgba(255,255,255,0.04)',
                       border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: '6px',
-                      color: '#cbd5e1',
+                      color: '#d6d0c4',
                       fontSize: '0.74rem',
                       textDecoration: 'none',
                       transition: 'all 0.2s ease'
@@ -403,7 +403,7 @@ export default function ContactSection({ showToastMessage }) {
                       background: 'rgba(255,255,255,0.04)',
                       border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: '6px',
-                      color: '#cbd5e1',
+                      color: '#d6d0c4',
                       fontSize: '0.74rem',
                       textDecoration: 'none',
                       transition: 'all 0.2s ease'

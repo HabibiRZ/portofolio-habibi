@@ -104,8 +104,19 @@ export default function App() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-            observer.unobserve(entry.target);
+            const el = entry.target;
+            // Auto-stagger children of grid / flex-wrap containers for a cascading entrance
+            const style = window.getComputedStyle(el);
+            const isGrid = style.display === 'grid' || style.display === 'inline-grid';
+            const isWrapRow = style.display === 'flex' && style.flexWrap === 'wrap' && el.children.length > 2;
+            if ((isGrid || isWrapRow) && el.children.length > 1) {
+              Array.from(el.children).forEach((child, i) => {
+                child.style.setProperty('--stagger-i', String(Math.min(i, 12)));
+              });
+              el.classList.add('stagger-children');
+            }
+            el.classList.add('revealed');
+            observer.unobserve(el);
           }
         });
       },
@@ -179,7 +190,7 @@ export default function App() {
         particleCount: 75,
         spread: 70,
         origin: { y: 0.7 },
-        colors: ['#10B981', '#06B6D4', '#F59E0B', '#FFFFFF'],
+        colors: ['#A3B18A', '#C9A15A', '#D4AF6A', '#FFFFFF'],
       });
     } catch {
       // Confetti error fallback

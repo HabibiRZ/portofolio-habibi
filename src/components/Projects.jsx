@@ -475,7 +475,7 @@ export default function Projects({ requestedFolder }) {
                             </p>
                             <div className="flagship-chips-row">
                               {item.architecture.stack.map((s) => (
-                                <span key={s} className="flagship-chip mono" style={{ background: 'rgba(56, 189, 248, 0.08)', color: '#38bdf8' }}>
+                                <span key={s} className="flagship-chip mono" style={{ background: 'rgba(212, 175, 106, 0.08)', color: '#d4af6a' }}>
                                   {s}
                                 </span>
                               ))}

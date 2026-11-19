@@ -138,8 +138,8 @@ export default function Preloader({ onComplete }) {
               <defs>
                 <linearGradient id="hrGradient" x1="20" y1="20" x2="90" y2="80" gradientUnits="userSpaceOnUse">
                   <stop stopColor="#ffffff" />
-                  <stop offset="0.5" stopColor="#38bdf8" />
-                  <stop offset="1" stopColor="#facc15" />
+                  <stop offset="0.5" stopColor="#d4af6a" />
+                  <stop offset="1" stopColor="#c9a15a" />
                 </linearGradient>
               </defs>
             </svg>

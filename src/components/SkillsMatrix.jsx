@@ -60,7 +60,7 @@ export default function SkillsMatrix() {
           <div>
             <div className="system-layer-badge mono">
               <span className="layer-bracket">[</span>
-              <span className="layer-num text-emerald">LAYER 05</span>
+              <span className="layer-num text-sky">LAYER 05</span>
               <span className="layer-sep">//</span>
               <span className="layer-name">CORE COMPETENCY MATRIX &amp; TECHNICAL ARSENAL</span>
               <span className="layer-bracket">]</span>
@@ -110,7 +110,7 @@ export default function SkillsMatrix() {
                 onMouseEnter={playHoverSound}
               >
                 <div className="skill-card-icon-box">
-                  <IconComponent size={20} className="skill-icon text-emerald" />
+                  <IconComponent size={20} className="skill-icon text-sky" />
                 </div>
                 <div className="skill-card-details">
                   <div className="skill-card-name">{skill.name}</div>

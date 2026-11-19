@@ -61,7 +61,7 @@ const flagshipSystems = [
     tag: "FINANCIAL ARCHIVES",
     name: "SIPABS — Bank Archival Engine",
     org: "PT. Bank Sumut",
-    accent: "#F59E0B",
+    accent: "#D4AF6A",
     status: "PRODUCTION ACTIVE",
     metric: "100% Audit Compliance",
     metricLabel: "ZERO DATA LOSS SLA",
@@ -76,7 +76,7 @@ const flagshipSystems = [
     tag: "GOVERNMENT ANALYTICS",
     name: "SERTAKAN — Executive Monitoring",
     org: "BPJS Ketenagakerjaan",
-    accent: "#06B6D4",
+    accent: "#9DB4C0",
     status: "INSTITUTIONAL DECREE",
     metric: "33 Sub-Districts",
     metricLabel: "MEDAN-WIDE PARTICIPATION",
@@ -91,7 +91,7 @@ const flagshipSystems = [
     tag: "COMPUTER VISION & AI",
     name: "Neural Vision Attendance Engine",
     org: "Universitas Sumatera Utara",
-    accent: "#10B981",
+    accent: "#A3B18A",
     status: "99.2% ACCURACY",
     metric: "120ms Latency",
     metricLabel: "EDGE FACIAL INFERENCE",
@@ -462,8 +462,8 @@ export default function Hero({ onDownloadCv, onInspectSystem }) {
                 </p>
 
                 <div className="flagship-chips-row" style={{ marginBottom: '22px' }}>
-                  <span className="flagship-chip mono" style={{ color: '#38bdf8' }}>PT. Bank Sumut (SIPABS)</span>
-                  <span className="flagship-chip mono" style={{ color: '#06b6d4' }}>BPJS Ketenagakerjaan</span>
+                  <span className="flagship-chip mono" style={{ color: '#d4af6a' }}>PT. Bank Sumut (SIPABS)</span>
+                  <span className="flagship-chip mono" style={{ color: '#c9a15a' }}>BPJS Ketenagakerjaan</span>
                   <span className="flagship-chip mono">PHP 8.x / MySQL</span>
                   <span className="flagship-chip mono">React.js / Next.js</span>
                   <span className="flagship-chip mono">Python REST API</span>
@@ -540,7 +540,7 @@ export default function Hero({ onDownloadCv, onInspectSystem }) {
                   {/* Tile 2 */}
                   <div className="telemetry-tile">
                     <div className="telemetry-tile-top">
-                      <span className="telemetry-tile-number" style={{ color: '#38bdf8' }}>{counts.sectors}</span>
+                      <span className="telemetry-tile-number" style={{ color: '#d4af6a' }}>{counts.sectors}</span>
                       <span className="telemetry-tile-badge">ENTERPRISE</span>
                     </div>
                     <div className="telemetry-tile-label">Key Institutional Sectors</div>
@@ -553,30 +553,30 @@ export default function Hero({ onDownloadCv, onInspectSystem }) {
                   {/* Tile 3 */}
                   <div className="telemetry-tile">
                     <div className="telemetry-tile-top">
-                      <span className="telemetry-tile-number" style={{ color: '#facc15' }}>{counts.gpa.toFixed(2)}</span>
-                      <span className="telemetry-tile-badge" style={{ color: '#facc15', borderColor: 'rgba(250,204,21,0.3)', background: 'rgba(250,204,21,0.08)' }}>
+                      <span className="telemetry-tile-number" style={{ color: '#e3c58a' }}>{counts.gpa.toFixed(2)}</span>
+                      <span className="telemetry-tile-badge" style={{ color: '#e3c58a', borderColor: 'rgba(227, 197, 138,0.3)', background: 'rgba(227, 197, 138,0.08)' }}>
                         HONORS
                       </span>
                     </div>
                     <div className="telemetry-tile-label">Academic Honors GPA</div>
                     <div className="telemetry-tile-sub">FASILKOM-TI Universitas Sumatera Utara (/ 4.00)</div>
                     <div className="telemetry-progress-bar">
-                      <div className="telemetry-progress-fill" style={{ width: '95%', background: '#facc15' }} />
+                      <div className="telemetry-progress-fill" style={{ width: '95%', background: 'linear-gradient(90deg, #d4af6a, #e3c58a)' }} />
                     </div>
                   </div>
 
                   {/* Tile 4 */}
                   <div className="telemetry-tile">
                     <div className="telemetry-tile-top">
-                      <span className="telemetry-tile-number" style={{ color: '#10b981' }}>{counts.patches}</span>
-                      <span className="telemetry-tile-badge" style={{ color: '#10b981', borderColor: 'rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.08)' }}>
+                      <span className="telemetry-tile-number" style={{ color: '#b7c49f' }}>{counts.patches}</span>
+                      <span className="telemetry-tile-badge" style={{ color: '#b7c49f', borderColor: 'rgba(183, 196, 159,0.3)', background: 'rgba(183, 196, 159,0.08)' }}>
                         -35% LATENCY
                       </span>
                     </div>
                     <div className="telemetry-tile-label">Query Bottlenecks Patched</div>
                     <div className="telemetry-tile-sub">Database indexing in high-volume banking environment</div>
                     <div className="telemetry-progress-bar">
-                      <div className="telemetry-progress-fill" style={{ width: '100%', background: '#10b981' }} />
+                      <div className="telemetry-progress-fill" style={{ width: '100%', background: 'linear-gradient(90deg, #7f8f68, #b7c49f)' }} />
                     </div>
                   </div>
                 </div>
