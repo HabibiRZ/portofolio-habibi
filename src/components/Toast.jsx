@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export default function Toast({ toast, onClose }) {
   if (!toast || !toast.visible) return null;
@@ -11,9 +11,23 @@ export default function Toast({ toast, onClose }) {
   };
 
   return (
-    <div className={`toast-container ${toast.visible ? 'show' : ''}`} role="alert">
+    <div
+      className={`toast-container ${toast.visible ? 'show' : ''}`}
+      role="alert"
+      aria-live="polite"
+    >
       {icons[toast.type] || icons.info}
       <span className="toast-message">{toast.message}</span>
+      {onClose && (
+        <button
+          type="button"
+          className="toast-close-btn"
+          onClick={onClose}
+          aria-label="Dismiss notification"
+        >
+          <X size={15} />
+        </button>
+      )}
     </div>
   );
 }

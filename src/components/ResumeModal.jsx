@@ -13,7 +13,8 @@ import {
   Building2, 
   Maximize2 
 } from 'lucide-react';
-import { playHoverSound, playClickSound, playSuccessSound } from '../utils/soundEffects';
+import { playHoverSound, playClickSound } from '../utils/soundEffects';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 
 export default function ResumeModal({ isOpen, onClose, onDownloadCv }) {
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -31,12 +32,11 @@ export default function ResumeModal({ isOpen, onClose, onDownloadCv }) {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    lockBodyScroll();
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = originalOverflow;
+      unlockBodyScroll();
     };
   }, [isOpen, onClose]);
 

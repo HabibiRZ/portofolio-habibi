@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { internshipMoments } from '../data/portfolioData';
 import { playHoverSound, playClickSound, playModalSound, playSwitchSound } from '../utils/soundEffects';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 
 export default function TeamGallery() {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -68,13 +69,10 @@ export default function TeamGallery() {
 
   // Lock body scroll when modal is open
   useEffect(() => {
-    if (activePhotoIndex !== null) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    if (activePhotoIndex === null) return;
+    lockBodyScroll();
     return () => {
-      document.body.style.overflow = '';
+      unlockBodyScroll();
     };
   }, [activePhotoIndex]);
 
@@ -132,6 +130,7 @@ export default function TeamGallery() {
             <button
               key={cat.id}
               type="button"
+              aria-pressed={activeFilter === cat.id}
               className={`skills-tab-btn mono ${activeFilter === cat.id ? 'active' : ''}`}
               onClick={() => {
                 playSwitchSound();
@@ -151,8 +150,16 @@ export default function TeamGallery() {
           {filteredMoments.map((item, idx) => (
             <div
               key={item.id}
+              role="button"
+              tabIndex={0}
               className={`gallery-frame-card ${getBentoSpanClass(idx)}`}
               onClick={() => handleOpenPhoto(item)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleOpenPhoto(item);
+                }
+              }}
               onMouseEnter={playHoverSound}
               style={{ '--card-accent': item.accent }}
             >

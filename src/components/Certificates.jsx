@@ -20,6 +20,7 @@ import {
   playModalSound,
   playSwitchSound
 } from '../utils/soundEffects';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 
 export default function Certificates() {
   const [activeCategory, setActiveCategory] = useState('all');
@@ -83,13 +84,10 @@ export default function Certificates() {
 
   // Lock body scroll when modal is open
   useEffect(() => {
-    if (selectedCert) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    if (!selectedCert) return;
+    lockBodyScroll();
     return () => {
-      document.body.style.overflow = '';
+      unlockBodyScroll();
     };
   }, [selectedCert]);
 
@@ -129,6 +127,7 @@ export default function Certificates() {
             <button
               key={cat.id}
               type="button"
+              aria-pressed={activeCategory === cat.id}
               className={`skills-tab-btn mono ${activeCategory === cat.id ? 'active' : ''}`}
               onClick={() => handleCategorySelect(cat.id)}
               onMouseEnter={playHoverSound}
@@ -143,12 +142,20 @@ export default function Certificates() {
           {filteredCerts.map((cert) => (
             <div
               key={cert.id}
+              role="button"
+              tabIndex={0}
               className="cert-vault-card spotlight-card"
               style={{
                 '--cert-accent': cert.accent,
                 '--cert-glow': `${cert.accent}30`
               }}
               onClick={() => handleOpenCert(cert)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleOpenCert(cert);
+                }
+              }}
               onMouseEnter={playHoverSound}
             >
               {/* Holographic Top Stripe */}

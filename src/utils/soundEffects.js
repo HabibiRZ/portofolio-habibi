@@ -14,16 +14,16 @@ if (typeof window !== 'undefined') {
   }
 }
 
-function getAudioContext() {
+function getAudioContext({ createIfMissing = true } = {}) {
   if (typeof window === 'undefined') return null;
-  if (!audioCtx) {
+  if (!audioCtx && createIfMissing) {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (AudioContextClass) {
       audioCtx = new AudioContextClass();
     }
   }
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
+  if (audioCtx && audioCtx.state === 'suspended' && createIfMissing) {
+    audioCtx.resume().catch(() => {});
   }
   return audioCtx;
 }
@@ -163,8 +163,9 @@ export function playModalSound() {
 /**
  * 5. Celebration Success Chime for CV Download
  */
-export function playSuccessSound() {
+export function playSuccessSound(requireUnlocked = false) {
   if (!soundEnabled) return;
+  if (requireUnlocked && (!audioCtx || audioCtx.state !== 'running')) return;
   const ctx = getAudioContext();
   if (!ctx) return;
 

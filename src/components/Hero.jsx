@@ -56,6 +56,7 @@ function InstagramIcon({ size = 26, className = "" }) {
 const flagshipSystems = [
   {
     id: "sipabs",
+    workId: "sipabs",
     sectionId: "work",
     tag: "FINANCIAL ARCHIVES",
     name: "SIPABS — Bank Archival Engine",
@@ -70,6 +71,7 @@ const flagshipSystems = [
   },
   {
     id: "sertakan",
+    workId: "bpjs-dashboard",
     sectionId: "work",
     tag: "GOVERNMENT ANALYTICS",
     name: "SERTAKAN — Executive Monitoring",
@@ -84,6 +86,7 @@ const flagshipSystems = [
   },
   {
     id: "ai-attendance",
+    workId: "ai-attendance",
     sectionId: "work",
     tag: "COMPUTER VISION & AI",
     name: "Neural Vision Attendance Engine",
@@ -98,8 +101,8 @@ const flagshipSystems = [
   }
 ];
 
-export default function Hero({ onDownloadCv }) {
-  const [counts, setCounts] = useState(telemetryStats.map(() => 0));
+export default function Hero({ onDownloadCv, onInspectSystem }) {
+  const [counts, setCounts] = useState({ systems: 0, sectors: 0, gpa: 0, patches: 0 });
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [activeSystemTab, setActiveSystemTab] = useState(0);
   const statsRef = useRef(null);
@@ -107,32 +110,41 @@ export default function Hero({ onDownloadCv }) {
 
   // Animated telemetry numbers on scroll into view
   useEffect(() => {
+    let rafId;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !animatedRef.current) {
           animatedRef.current = true;
-          const duration = 1200;
+          const duration = 1100;
           const start = performance.now();
 
           const animate = (now) => {
             const progress = Math.min(1, (now - start) / duration);
             const easeOut = 1 - Math.pow(1 - progress, 3);
-            setCounts(telemetryStats.map((s) => Math.round(s.value * easeOut)));
+            setCounts({
+              systems: Math.round(3 * easeOut),
+              sectors: Math.round(2 * easeOut),
+              gpa: Number((3.80 * easeOut).toFixed(2)),
+              patches: Math.round(14 * easeOut),
+            });
             if (progress < 1) {
-              requestAnimationFrame(animate);
+              rafId = requestAnimationFrame(animate);
             } else {
-              setCounts(telemetryStats.map((s) => s.value));
+              setCounts({ systems: 3, sectors: 2, gpa: 3.80, patches: 14 });
             }
           };
 
-          requestAnimationFrame(animate);
+          rafId = requestAnimationFrame(animate);
         }
       },
-      { threshold: 0.25 }
+      { threshold: 0.2 }
     );
 
     if (statsRef.current) observer.observe(statsRef.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const handleCopyEmail = (e) => {
@@ -257,18 +269,16 @@ export default function Hero({ onDownloadCv }) {
                 <span>ACTIVE PRODUCTION ENGINES // REALTIME TELEMETRY</span>
               </div>
 
-              <div className="console-hud-tabs mono">
+              <div className="console-hud-tabs mono" role="tablist" aria-label="Active Production Engines">
                 {flagshipSystems.map((sys, idx) => (
                   <button
                     key={sys.id}
                     type="button"
+                    role="tab"
+                    aria-selected={activeSystemTab === idx}
                     className={`console-tab-btn ${activeSystemTab === idx ? 'active' : ''}`}
                     onClick={() => {
-                      try {
-                        playClickSound();
-                      } catch (err) {
-                        /* ignore audio error */
-                      }
+                      playClickSound();
                       setActiveSystemTab(idx);
                     }}
                     onMouseEnter={playHoverSound}
@@ -327,7 +337,14 @@ export default function Hero({ onDownloadCv }) {
                 <button
                   type="button"
                   className="console-btn-deep-dive mono"
-                  onClick={() => handleScrollToSection('work')}
+                  onClick={() => {
+                    playClickSound();
+                    if (onInspectSystem) {
+                      onInspectSystem(flagshipSystems[activeSystemTab].workId);
+                    } else {
+                      handleScrollToSection('work');
+                    }
+                  }}
                   onMouseEnter={playHoverSound}
                 >
                   <span>INSPECT ARCHITECTURE BLUEPRINT</span>
@@ -510,7 +527,7 @@ export default function Hero({ onDownloadCv }) {
                   {/* Tile 1 */}
                   <div className="telemetry-tile">
                     <div className="telemetry-tile-top">
-                      <span className="telemetry-tile-number text-shiny">{counts[0] || 3}+</span>
+                      <span className="telemetry-tile-number text-shiny">{counts.systems}+</span>
                       <span className="telemetry-tile-badge">100% SHIPPED</span>
                     </div>
                     <div className="telemetry-tile-label">Production Systems</div>
@@ -523,7 +540,7 @@ export default function Hero({ onDownloadCv }) {
                   {/* Tile 2 */}
                   <div className="telemetry-tile">
                     <div className="telemetry-tile-top">
-                      <span className="telemetry-tile-number" style={{ color: '#38bdf8' }}>{counts[1] || 2}</span>
+                      <span className="telemetry-tile-number" style={{ color: '#38bdf8' }}>{counts.sectors}</span>
                       <span className="telemetry-tile-badge">ENTERPRISE</span>
                     </div>
                     <div className="telemetry-tile-label">Key Institutional Sectors</div>
@@ -536,7 +553,7 @@ export default function Hero({ onDownloadCv }) {
                   {/* Tile 3 */}
                   <div className="telemetry-tile">
                     <div className="telemetry-tile-top">
-                      <span className="telemetry-tile-number" style={{ color: '#facc15' }}>3.80</span>
+                      <span className="telemetry-tile-number" style={{ color: '#facc15' }}>{counts.gpa.toFixed(2)}</span>
                       <span className="telemetry-tile-badge" style={{ color: '#facc15', borderColor: 'rgba(250,204,21,0.3)', background: 'rgba(250,204,21,0.08)' }}>
                         HONORS
                       </span>
@@ -551,7 +568,7 @@ export default function Hero({ onDownloadCv }) {
                   {/* Tile 4 */}
                   <div className="telemetry-tile">
                     <div className="telemetry-tile-top">
-                      <span className="telemetry-tile-number" style={{ color: '#10b981' }}>14</span>
+                      <span className="telemetry-tile-number" style={{ color: '#10b981' }}>{counts.patches}</span>
                       <span className="telemetry-tile-badge" style={{ color: '#10b981', borderColor: 'rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.08)' }}>
                         -35% LATENCY
                       </span>

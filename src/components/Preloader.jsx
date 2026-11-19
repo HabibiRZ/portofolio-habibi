@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { playSwitchSound, playSuccessSound } from '../utils/soundEffects';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { playSuccessSound, playClickSound } from '../utils/soundEffects';
 
 export default function Preloader({ onComplete }) {
   const [progress, setProgress] = useState(0);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [isCurtainUp, setIsCurtainUp] = useState(false);
+  const completedRef = useRef(false);
+  const timersRef = useRef([]);
 
   const statusPhases = [
     'BOOTSTRAP_CORE // INITIALIZING RUNTIME',
@@ -14,11 +16,55 @@ export default function Preloader({ onComplete }) {
     'HABIBI RIZQULLAH // SYSTEMS ONLINE'
   ];
 
+  const finishPreloader = useCallback((immediate = false) => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    timersRef.current.forEach((t) => clearTimeout(t));
+    timersRef.current = [];
+
+    try {
+      sessionStorage.setItem('habibi_booted', '1');
+    } catch {
+      /* ignore storage errors */
+    }
+
+    setProgress(100);
+    setPhaseIndex(4);
+
+    if (immediate) {
+      setIsCurtainUp(true);
+      const t = setTimeout(onComplete, 420);
+      timersRef.current.push(t);
+      return;
+    }
+
+    playSuccessSound(true);
+    const t1 = setTimeout(() => {
+      setIsCurtainUp(true);
+      const t2 = setTimeout(() => {
+        onComplete();
+      }, 700);
+      timersRef.current.push(t2);
+    }, 250);
+    timersRef.current.push(t1);
+  }, [onComplete]);
+
   useEffect(() => {
+    let isRepeatSession = false;
+    try {
+      isRepeatSession = sessionStorage.getItem('habibi_booted') === '1';
+    } catch {
+      /* ignore */
+    }
+
     const startTime = Date.now();
-    const duration = 1800; // 1.8s smooth duration
+    const duration = isRepeatSession ? 450 : 1400;
 
     const interval = setInterval(() => {
+      if (completedRef.current) {
+        clearInterval(interval);
+        return;
+      }
       const elapsed = Date.now() - startTime;
       const rawProgress = Math.min(100, Math.floor((elapsed / duration) * 100));
 
@@ -32,22 +78,25 @@ export default function Preloader({ onComplete }) {
 
       if (elapsed >= duration) {
         clearInterval(interval);
-        setProgress(100);
-        setPhaseIndex(4);
-        playSuccessSound();
-
-        // Smooth curtain unveil
-        setTimeout(() => {
-          setIsCurtainUp(true);
-          setTimeout(() => {
-            onComplete();
-          }, 850);
-        }, 350);
+        finishPreloader(false);
       }
     }, 24);
 
-    return () => clearInterval(interval);
-  }, [onComplete]);
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        playClickSound();
+        finishPreloader(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('keydown', handleKeyDown);
+      timersRef.current.forEach((t) => clearTimeout(t));
+    };
+  }, [finishPreloader]);
 
   return (
     <div
@@ -57,12 +106,26 @@ export default function Preloader({ onComplete }) {
       {/* Background Dot Matrix Texture */}
       <div className="preloader-bg-matrix" />
 
+      {/* Skip Intro Button */}
+      <button
+        type="button"
+        className="preloader-skip-btn mono"
+        onClick={() => {
+          playClickSound();
+          finishPreloader(true);
+        }}
+        aria-label="Skip boot sequence"
+      >
+        <span>SKIP INTRO</span>
+        <kbd>ESC</kbd>
+      </button>
+
       <div className="preloader-core-container">
         {/* Orbital Emblem with Geometric HR Monogram */}
         <div className="preloader-orbital-emblem">
           <div className="orbital-ring-outer" />
           <div className="orbital-ring-inner" />
-          
+
           <div className="preloader-monogram-center">
             <svg width="44" height="44" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path

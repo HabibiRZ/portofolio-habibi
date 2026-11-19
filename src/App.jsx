@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import Preloader from './components/Preloader';
 import Navbar from './components/Navbar';
@@ -12,42 +12,89 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import Toast from './components/Toast';
 import ResumeModal from './components/ResumeModal';
-import { playSuccessSound, playClickSound, playHoverSound } from './utils/soundEffects';
+import CommandPalette from './components/CommandPalette';
+import {
+  playSuccessSound,
+  playClickSound,
+  playHoverSound,
+  toggleSound,
+  isSoundEnabled
+} from './utils/soundEffects';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [soundActive, setSoundActive] = useState(() => isSoundEnabled());
+  const [requestedFolder, setRequestedFolder] = useState(null);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
 
-  // Scroll reading progress indicator
+  const scrollBarRef = useRef(null);
+  const cursorGlowRef = useRef(null);
+  const toastTimerRef = useRef(null);
+
+  // Scroll reading progress indicator (direct DOM update, zero re-renders)
   useEffect(() => {
     const handleScroll = () => {
       const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalScroll > 0) {
-        setScrollProgress((window.scrollY / totalScroll) * 100);
+      if (totalScroll > 0 && scrollBarRef.current) {
+        const ratio = Math.min(1, Math.max(0, window.scrollY / totalScroll));
+        scrollBarRef.current.style.transform = `scaleX(${ratio})`;
       }
     };
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Smooth mouse-follow spotlight
+  // Zero-rerender mouse spotlight + .spotlight-card radial tracking
   useEffect(() => {
     let animationFrame;
+    let lastX = -1000;
+    let lastY = -1000;
+    let lastTarget = null;
+
     const handleMouseMove = (e) => {
+      lastX = e.clientX;
+      lastY = e.clientY;
+      lastTarget = e.target;
+
       cancelAnimationFrame(animationFrame);
       animationFrame = requestAnimationFrame(() => {
-        setMousePos({ x: e.clientX, y: e.clientY });
+        if (cursorGlowRef.current) {
+          cursorGlowRef.current.style.left = `${lastX}px`;
+          cursorGlowRef.current.style.top = `${lastY}px`;
+        }
+        const card = lastTarget?.closest?.('.spotlight-card');
+        if (card) {
+          const rect = card.getBoundingClientRect();
+          card.style.setProperty('--mouse-x', `${lastX - rect.left}px`);
+          card.style.setProperty('--mouse-y', `${lastY - rect.top}px`);
+        }
       });
     };
+
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrame);
     };
   }, []);
+
+  // Global Ctrl+K / Cmd+K shortcut for Command Palette
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (!loading) {
+          playClickSound();
+          setCommandPaletteOpen((prev) => !prev);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [loading]);
 
   // Staggered Scroll Reveal System
   useEffect(() => {
@@ -84,19 +131,44 @@ export default function App() {
     };
   }, [loading]);
 
-  const showToast = (message, type = 'success') => {
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
+  const showToast = useCallback((message, type = 'success') => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
     setToast({ visible: true, message, type });
-    setTimeout(() => {
+    toastTimerRef.current = setTimeout(() => {
       setToast({ visible: false, message: '', type: 'success' });
     }, 3800);
-  };
+  }, []);
 
-  const handleOpenResume = (e) => {
+  const handleToggleSound = useCallback(() => {
+    const newState = toggleSound();
+    setSoundActive(newState);
+  }, []);
+
+  const handleOpenResume = useCallback((e) => {
     if (e) e.preventDefault();
     setResumeModalOpen(true);
-  };
+  }, []);
 
-  const handleDownloadCv = async (e) => {
+  const handleNavigateSection = useCallback((sectionId) => {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
+  const handleInspectSystem = useCallback((projectId) => {
+    setRequestedFolder({ id: projectId, nonce: Date.now() });
+  }, []);
+
+  const handleDownloadCv = useCallback(async (e) => {
     if (e) e.preventDefault();
 
     // Trigger celebration sound & confetti!
@@ -109,11 +181,10 @@ export default function App() {
         origin: { y: 0.7 },
         colors: ['#10B981', '#06B6D4', '#F59E0B', '#FFFFFF'],
       });
-    } catch (err) {
+    } catch {
       // Confetti error fallback
     }
 
-    // Attempt direct blob download with application/octet-stream so browser downloads immediately
     let downloaded = false;
 
     // Method 1: Embedded Base64 if available on window
@@ -172,24 +243,28 @@ export default function App() {
     }
 
     showToast('✓ Official CV downloaded successfully!', 'success');
-  };
+  }, [showToast]);
 
   return (
     <div className="portfolio-app">
+      {/* Skip to Main Content for Keyboard / Screen-Reader Accessibility */}
+      <a href="#main-content" className="skip-to-content mono">
+        Skip to main content
+      </a>
+
       {/* Scroll Reading Progress Bar at the very top */}
       <div
+        ref={scrollBarRef}
         className="scroll-progress-bar"
-        style={{ transform: `scaleX(${scrollProgress / 100})` }}
+        style={{ transform: 'scaleX(0)' }}
         aria-hidden="true"
       />
 
       {/* Interactive Cyber Mouse Cursor Spotlight */}
       <div
+        ref={cursorGlowRef}
         className="cyber-cursor-glow"
-        style={{
-          left: `${mousePos.x}px`,
-          top: `${mousePos.y}px`,
-        }}
+        style={{ left: '-1000px', top: '-1000px' }}
         aria-hidden="true"
       />
 
@@ -229,12 +304,17 @@ export default function App() {
       </aside>
 
       {/* HUD Navigation */}
-      <Navbar onDownloadCv={handleOpenResume} />
+      <Navbar
+        onDownloadCv={handleOpenResume}
+        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+        soundActive={soundActive}
+        onToggleSound={handleToggleSound}
+      />
 
       {/* Main Content Sections */}
-      <main className="main-content-flow">
-        <Hero onDownloadCv={handleOpenResume} />
-        <Projects />
+      <main id="main-content" className="main-content-flow">
+        <Hero onDownloadCv={handleOpenResume} onInspectSystem={handleInspectSystem} />
+        <Projects requestedFolder={requestedFolder} />
         <Certificates />
         <TeamGallery />
         <SkillsMatrix />
@@ -243,16 +323,35 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer onOpenCommandPalette={() => setCommandPaletteOpen(true)} />
 
       {/* Floating Notification Toast */}
-      <Toast toast={toast} onClose={() => setToast({ visible: false, message: '', type: 'success' })} />
+      <Toast
+        toast={toast}
+        onClose={() => {
+          if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+          setToast({ visible: false, message: '', type: 'success' });
+        }}
+      />
 
       {/* Executive Curriculum Vitae / Resume Overview Modal */}
       <ResumeModal
         isOpen={resumeModalOpen}
         onClose={() => setResumeModalOpen(false)}
         onDownloadCv={handleDownloadCv}
+      />
+
+      {/* Ctrl+K / Cmd+K Command Palette */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onOpenResume={handleOpenResume}
+        onDownloadCv={handleDownloadCv}
+        onNavigateSection={handleNavigateSection}
+        onOpenProjectFolder={handleInspectSystem}
+        onToggleSound={handleToggleSound}
+        soundActive={soundActive}
+        showToastMessage={showToast}
       />
     </div>
   );

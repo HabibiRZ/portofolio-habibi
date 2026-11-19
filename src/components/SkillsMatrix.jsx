@@ -84,6 +84,7 @@ export default function SkillsMatrix() {
             <button
               key={cat.id}
               type="button"
+              aria-pressed={activeCategory === cat.id}
               className={`skills-tab-btn mono ${activeCategory === cat.id ? 'active' : ''}`}
               onClick={() => handleCategorySelect(cat.id)}
               onMouseEnter={playHoverSound}

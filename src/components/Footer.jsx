@@ -1,8 +1,23 @@
-import React from 'react';
-import { ArrowUp, Terminal, Shield, Globe, Cpu } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowUp, Command } from 'lucide-react';
 import { playHoverSound, playClickSound } from '../utils/soundEffects';
 
-export default function Footer() {
+export default function Footer({ onOpenCommandPalette }) {
+  const [loadMs, setLoadMs] = useState(null);
+
+  useEffect(() => {
+    try {
+      const navEntry = performance.getEntriesByType?.('navigation')?.[0];
+      if (navEntry && navEntry.domContentLoadedEventEnd > 0) {
+        setLoadMs(Math.max(1, Math.round(navEntry.domContentLoadedEventEnd)));
+      } else {
+        setLoadMs(Math.max(1, Math.round(performance.now())));
+      }
+    } catch {
+      /* ignore performance API errors */
+    }
+  }, []);
+
   const scrollToTop = () => {
     playClickSound();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -20,11 +35,11 @@ export default function Footer() {
               <span style={{ color: 'var(--color-sky)' }}>SOFTWARE &amp; SYSTEMS ENGINEER</span>
             </div>
             <div className="footer-sub mono" style={{ fontSize: '0.76rem', color: 'var(--color-text-dim)', letterSpacing: '0.08em', marginTop: '6px' }}>
-              MEDAN, ID • REACT + VITE + WEB AUDIO API • TAILORED OBSIDIAN ARCHITECTURE
+              MEDAN, ID • REACT 18 + VITE 6 + WEB AUDIO API • OBSIDIAN ARCHITECTURE
             </div>
           </div>
 
-          <div className="footer-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className="footer-right" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <div className="footer-social-links mono" style={{ display: 'flex', gap: '18px', fontSize: '0.8rem' }}>
               <a href="https://github.com/HabibiRZ" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-text-muted)' }} onMouseEnter={playHoverSound}>
                 GITHUB
@@ -36,6 +51,22 @@ export default function Footer() {
                 INSTAGRAM
               </a>
             </div>
+
+            {onOpenCommandPalette && (
+              <button
+                type="button"
+                className="footer-cmd-btn mono"
+                onClick={() => {
+                  playClickSound();
+                  onOpenCommandPalette();
+                }}
+                onMouseEnter={playHoverSound}
+                title="Open Command Palette (Ctrl+K)"
+              >
+                <Command size={13} className="text-sky" />
+                <span>CMD+K</span>
+              </button>
+            )}
 
             <button
               type="button"
@@ -68,7 +99,7 @@ export default function Footer() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <span>&copy; {new Date().getFullYear()} Habibi Rizqullah. All rights reserved.</span>
             <span>•</span>
-            <span style={{ color: 'var(--color-sky)' }}>VERSION 2026 © EDITION</span>
+            <span style={{ color: 'var(--color-sky)' }}>VERSION 2026 &copy; EDITION</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -76,10 +107,14 @@ export default function Footer() {
               <span className="dot-green" />
               <span>STATUS: ONLINE</span>
             </span>
+            {loadMs !== null && (
+              <>
+                <span>•</span>
+                <span>BOOT: {loadMs}MS</span>
+              </>
+            )}
             <span>•</span>
-            <span>LATENCY: 14MS</span>
-            <span>•</span>
-            <span>SYSTEM: DARWIN_X64_STABLE</span>
+            <span>PRESS <kbd className="footer-kbd">CTRL+K</kbd> FOR COMMANDS</span>
           </div>
         </div>
       </div>

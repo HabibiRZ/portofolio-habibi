@@ -25,9 +25,10 @@ import {
 } from 'lucide-react';
 import { workExperience } from '../data/portfolioData';
 import { playHoverSound, playClickSound, playSwitchSound, playModalSound } from '../utils/soundEffects';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 import ProjectModal from './ProjectModal';
 
-export default function Projects() {
+export default function Projects({ requestedFolder }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeFolderId, setActiveFolderId] = useState('sipabs'); // Default first project open in folder stack
   const [expandedArchId, setExpandedArchId] = useState(null);
@@ -40,6 +41,16 @@ export default function Projects() {
   });
   const [modalState, setModalState] = useState({ isOpen: false, project: null, initialIndex: 0 });
   const [photoViewerState, setPhotoViewerState] = useState({ isOpen: false, project: null, activeIndex: 0 });
+
+  useEffect(() => {
+    if (!requestedFolder?.id) return;
+    setActiveCategory('all');
+    setActiveFolderId(requestedFolder.id);
+    const el = document.getElementById('work');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [requestedFolder]);
 
   const handleToggleFolder = (projectId, e = null) => {
     if (e) e.stopPropagation();
@@ -124,14 +135,10 @@ export default function Projects() {
 
   // Keyboard navigation & body scroll lock for photo viewer
   useEffect(() => {
-    if (photoViewerState.isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.removeProperty('overflow');
-    }
+    if (!photoViewerState.isOpen) return;
+    lockBodyScroll();
 
     const handleKeyDown = (e) => {
-      if (!photoViewerState.isOpen) return;
       if (e.key === 'Escape') {
         handleClosePhotoViewer();
       } else if (e.key === 'ArrowRight') {
@@ -143,7 +150,7 @@ export default function Projects() {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.removeProperty('overflow');
+      unlockBodyScroll();
     };
   }, [photoViewerState.isOpen]);
 
@@ -204,6 +211,7 @@ export default function Projects() {
             <button
               key={cat.id}
               type="button"
+              aria-pressed={activeCategory === cat.id}
               className={`skills-tab-btn mono ${activeCategory === cat.id ? 'active' : ''}`}
               onClick={() => handleCategoryFilter(cat.id)}
               onMouseEnter={playHoverSound}
@@ -500,7 +508,7 @@ export default function Projects() {
       <ProjectModal
         isOpen={modalState.isOpen}
         project={modalState.project}
-        initialIndex={modalState.initialIndex}
+        initialImageIndex={modalState.initialIndex}
         onClose={handleCloseModal}
       />
 

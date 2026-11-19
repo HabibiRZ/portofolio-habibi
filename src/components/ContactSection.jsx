@@ -78,9 +78,16 @@ const faqData = [
   }
 ];
 
+const inquiryTopics = [
+  { id: 'role', label: 'Full-Stack / Backend Role', template: 'Hi Habibi, we are looking for a Junior Full-Stack / Systems Engineer for...' },
+  { id: 'project', label: 'Freelance Web System', template: 'Hi Habibi, we would like to discuss building a web system / dashboard for...' },
+  { id: 'collab', label: 'Technical Collaboration', template: 'Hi Habibi, I wanted to connect regarding...' }
+];
+
 export default function ContactSection({ showToastMessage }) {
   const [copiedField, setCopiedField] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [selectedTopic, setSelectedTopic] = useState(null);
   const [errors, setErrors] = useState({});
   const [isSending, setIsSending] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
@@ -119,6 +126,17 @@ export default function ContactSection({ showToastMessage }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleSelectTopic = (topic) => {
+    playClickSound();
+    setSelectedTopic(topic.id);
+    if (!formData.message.trim() || inquiryTopics.some((t) => t.template === formData.message)) {
+      setFormData((prev) => ({ ...prev, message: topic.template }));
+      if (errors.message) {
+        setErrors((prev) => ({ ...prev, message: '' }));
+      }
     }
   };
 
@@ -412,6 +430,23 @@ export default function ContactSection({ showToastMessage }) {
                 Have an inquiry, role opening, or collaboration proposal? Send a message directly into my inbox.
               </p>
 
+              {/* Quick-Fill Inquiry Topic Pills */}
+              <div className="contact-topic-pills mono" role="group" aria-label="Inquiry Topic">
+                {inquiryTopics.map((topic) => (
+                  <button
+                    key={topic.id}
+                    type="button"
+                    aria-pressed={selectedTopic === topic.id}
+                    className={`contact-topic-pill ${selectedTopic === topic.id ? 'active' : ''}`}
+                    onClick={() => handleSelectTopic(topic)}
+                    onMouseEnter={playHoverSound}
+                    disabled={isSending}
+                  >
+                    {topic.label}
+                  </button>
+                ))}
+              </div>
+
               <div className="contact-form-fields">
                 <div className="form-row">
                   <div className="form-field">
@@ -425,8 +460,10 @@ export default function ContactSection({ showToastMessage }) {
                       value={formData.name}
                       onChange={handleInputChange}
                       disabled={isSending}
+                      aria-invalid={Boolean(errors.name)}
+                      aria-describedby={errors.name ? 'contact-name-err' : undefined}
                     />
-                    {errors.name && <span className="form-error-text mono">{errors.name}</span>}
+                    {errors.name && <span id="contact-name-err" className="form-error-text mono">{errors.name}</span>}
                   </div>
                   <div className="form-field">
                     <label className="form-label mono" htmlFor="contact-email">Your Email</label>
@@ -439,23 +476,31 @@ export default function ContactSection({ showToastMessage }) {
                       value={formData.email}
                       onChange={handleInputChange}
                       disabled={isSending}
+                      aria-invalid={Boolean(errors.email)}
+                      aria-describedby={errors.email ? 'contact-email-err' : undefined}
                     />
-                    {errors.email && <span className="form-error-text mono">{errors.email}</span>}
+                    {errors.email && <span id="contact-email-err" className="form-error-text mono">{errors.email}</span>}
                   </div>
                 </div>
 
                 <div className="form-field">
-                  <label className="form-label mono" htmlFor="contact-message">Project or Role Details</label>
+                  <div className="form-label-row">
+                    <label className="form-label mono" htmlFor="contact-message">Project or Role Details</label>
+                    <span className="form-char-count mono">{formData.message.length} / 2000</span>
+                  </div>
                   <textarea
                     id="contact-message"
                     name="message"
+                    maxLength={2000}
                     className={`form-textarea ${errors.message ? 'error' : ''}`}
                     placeholder="Describe your project requirements, scope, or career opportunity..."
                     value={formData.message}
                     onChange={handleInputChange}
                     disabled={isSending}
+                    aria-invalid={Boolean(errors.message)}
+                    aria-describedby={errors.message ? 'contact-message-err' : undefined}
                   />
-                  {errors.message && <span className="form-error-text mono">{errors.message}</span>}
+                  {errors.message && <span id="contact-message-err" className="form-error-text mono">{errors.message}</span>}
                 </div>
               </div>
 

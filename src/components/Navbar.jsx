@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, ArrowDownRight, Download, Menu, X, Terminal, Sparkles, FileText } from 'lucide-react';
-import { playHoverSound, playClickSound, toggleSound, isSoundEnabled } from '../utils/soundEffects';
+import { Volume2, VolumeX, Menu, X, FileText, Command } from 'lucide-react';
+import { playHoverSound, playClickSound } from '../utils/soundEffects';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 
-export default function Navbar({ onDownloadCv }) {
-  const [soundActive, setSoundActive] = useState(true);
+export default function Navbar({ onDownloadCv, onOpenCommandPalette, soundActive, onToggleSound }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
-    setSoundActive(isSoundEnabled());
-
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
 
@@ -35,18 +33,14 @@ export default function Navbar({ onDownloadCv }) {
   }, []);
 
   const handleSoundToggle = () => {
-    const newState = toggleSound();
-    setSoundActive(newState);
+    onToggleSound?.();
   };
 
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.removeProperty('overflow');
-    }
+    if (!mobileMenuOpen) return;
+    lockBodyScroll();
     return () => {
-      document.body.style.removeProperty('overflow');
+      unlockBodyScroll();
     };
   }, [mobileMenuOpen]);
 
@@ -118,8 +112,24 @@ export default function Navbar({ onDownloadCv }) {
           ))}
         </nav>
 
-        {/* Actions (Sound Toggle & Download CV) */}
+        {/* Actions (Command Palette, Sound Toggle & Download CV) */}
         <div className="nav-actions">
+          {/* Command Palette Trigger */}
+          <button
+            type="button"
+            className="nav-cmd-btn mono"
+            onClick={() => {
+              playClickSound();
+              onOpenCommandPalette?.();
+            }}
+            onMouseEnter={playHoverSound}
+            title="Open Command Palette (Ctrl+K / ⌘K)"
+            aria-label="Open Command Palette"
+          >
+            <Command size={13} className="text-sky" />
+            <span className="hide-mobile">K</span>
+          </button>
+
           {/* Sound Toggle Button with Equalizer Wave */}
           <button
             type="button"

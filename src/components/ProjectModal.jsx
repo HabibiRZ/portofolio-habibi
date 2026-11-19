@@ -20,6 +20,7 @@ import {
   Terminal
 } from 'lucide-react';
 import { playHoverSound, playClickSound, playSwitchSound } from '../utils/soundEffects';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 
 function getSimulatedUrl(id) {
   switch (id) {
@@ -69,11 +70,12 @@ export default function ProjectModal({ project, initialImageIndex = 0, onClose }
 
   // Prevent body scrolling while modal is open
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    if (!project) return;
+    lockBodyScroll();
     return () => {
-      document.body.style.overflow = '';
+      unlockBodyScroll();
     };
-  }, []);
+  }, [project]);
 
   const handleNextImage = (e) => {
     if (e) e.stopPropagation();
